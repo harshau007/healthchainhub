@@ -16,12 +16,12 @@ export function ConnectionStatus({
         variant={isConnected ? "default" : "destructive"}
         className={
           isConnected
-            ? "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+            ? "h-5 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
             : ""
         }
       >
         <span
-          className={`mr-1.5 inline-block w-2 h-2 rounded-full ${
+          className={`lg:mr-1.5 inline-block w-2 h-2 rounded-full ${
             isConnected ? "bg-white animate-pulse" : "bg-red-200"
           }`}
         ></span>

@@ -3,19 +3,18 @@ import { PatientDetailsPage } from "@/components/patient-details-page";
 import { PatientDetailsSkeleton } from "@/components/patient-details-skeleton";
 import { Suspense } from "react";
 
-interface PatientPageProps {
-  params: {
-    id: string;
-  };
-}
+type PatientPageProps = Promise<{
+  id: string;
+}>;
 
-export default function PatientPage({ params }: PatientPageProps) {
+export default async function PatientPage(props: { params: PatientPageProps }) {
+  const { id } = await props.params;
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         <BackButton href="/" label="Back to Dashboard" />
         <Suspense fallback={<PatientDetailsSkeleton />}>
-          <PatientDetailsPage patientId={Number.parseInt(params.id)} />
+          <PatientDetailsPage patientId={id} />
         </Suspense>
       </div>
     </main>

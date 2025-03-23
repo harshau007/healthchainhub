@@ -12,6 +12,9 @@ export default function Dashboard() {
     return <DashboardSkeleton />;
   }
 
+  const patientsToShow =
+    data.patients.length > 3 ? data.patients.slice(0, 3) : data.patients;
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -20,7 +23,7 @@ export default function Dashboard() {
         </h1>
       </div>
       <HospitalMetricsSection metrics={data.hospitalMetrics} />
-      <PatientsList patients={data.patients} />
+      <PatientsList patients={patientsToShow} />
     </div>
   );
 }

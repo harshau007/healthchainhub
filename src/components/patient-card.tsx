@@ -23,7 +23,7 @@ export function PatientCard({ patient }: PatientCardProps) {
 
   return (
     <Card
-      className={`hover:shadow-md transition-shadow cursor-pointer border-l-4 ${getCardAccentColor()}`}
+      className={`hover:shadow-md transition-shadow cursor-pointer border-l-4 h-67 overflow-hidden ${getCardAccentColor()}`}
     >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
@@ -54,7 +54,7 @@ export function PatientCard({ patient }: PatientCardProps) {
                 patient.vitalSigns.heartRate
               )}`}
             >
-              <Heart className={`h-3.5 w-3.5 text-white`} />
+              <Heart className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="text-sm">{patient.vitalSigns.heartRate} bpm</span>
           </div>
@@ -65,7 +65,7 @@ export function PatientCard({ patient }: PatientCardProps) {
                 patient.vitalSigns.temperature
               )}`}
             >
-              <Thermometer className={`h-3.5 w-3.5 text-white`} />
+              <Thermometer className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="text-sm">{patient.vitalSigns.temperature}°C</span>
           </div>
@@ -76,7 +76,7 @@ export function PatientCard({ patient }: PatientCardProps) {
                 patient.vitalSigns.bloodPressure
               )}`}
             >
-              <Activity className={`h-3.5 w-3.5 text-white`} />
+              <Activity className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="text-sm">{patient.vitalSigns.bloodPressure}</span>
           </div>
@@ -87,7 +87,7 @@ export function PatientCard({ patient }: PatientCardProps) {
                 patient.vitalSigns.oxygenSaturation
               )}`}
             >
-              <Lungs className={`h-3.5 w-3.5 text-white`} />
+              <Lungs className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="text-sm">
               {patient.vitalSigns.oxygenSaturation}% O₂

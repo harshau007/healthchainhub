@@ -16,7 +16,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Activity className="h-6 w-6 text-primary" />
           <Link href="/" className="text-xl font-bold tracking-tight">
-            MediTrack
+            HealthChain
           </Link>
         </div>
 

@@ -33,7 +33,7 @@ interface DataProviderProps {
 }
 
 export function DataProvider({ children }: DataProviderProps) {
-  const { setData, data } = useDataStore();
+  const { setData } = useDataStore();
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [previousData, setPreviousData] = useState<HospitalData | null>(null);

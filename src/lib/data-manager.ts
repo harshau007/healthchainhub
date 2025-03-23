@@ -36,7 +36,7 @@ export class DataManager {
     this.closeConnection(); // Close any existing connection
 
     try {
-      this.eventSource = new EventSource("http://localhost:3000/events");
+      this.eventSource = new EventSource("http://localhost:4000/events");
 
       this.eventSource.onopen = () => {
         this.reconnectAttempts = 0;

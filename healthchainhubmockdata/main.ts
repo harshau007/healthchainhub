@@ -1,11 +1,19 @@
 import express, { Request, Response } from "express";
 
 const app = express();
-const port = 3000;
+const port = 4000;
+
+const presetUUIDs = [
+  "67dfc98c-62a0-8005-9db2-47133e16903d",
+  "83a7f3d1-77f2-4a4f-9e4b-df3a5a4b8c70",
+  "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "abcdef12-3456-7890-abcd-ef1234567890",
+  "09876543-21fe-dcba-0987-654321fedcba",
+];
 
 // Define interfaces for the simulated data structures
 interface Patient {
-  id: number;
+  id: string;
   name: string;
   vitalSigns: {
     heartRate: number;
@@ -72,8 +80,9 @@ const appointmentHistories = [
 // Function to generate simulated data for a patient with a given ID
 function generatePatientData(id: number): Patient {
   const name = names[id % names.length];
+  const uid = presetUUIDs[id % presetUUIDs.length];
   return {
-    id,
+    id: uid,
     name,
     vitalSigns: {
       heartRate: Math.floor(Math.random() * (100 - 60 + 1)) + 60,
@@ -147,7 +156,7 @@ app.get("/events", (req: Request, res: Response) => {
   const sendEvent = () => {
     const patients: Patient[] = [];
     // Simulate data for 3 patients (or adjust as needed)
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       patients.push(generatePatientData(i));
     }
 

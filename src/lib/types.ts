@@ -5,7 +5,7 @@ export interface HospitalData {
 }
 
 export interface Patient {
-  id: number;
+  id: string;
   name: string;
   vitalSigns: VitalSigns;
   EHR: ElectronicHealthRecord;

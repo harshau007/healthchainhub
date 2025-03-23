@@ -14,7 +14,7 @@ export function BackButton({ href, label }: BackButtonProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1 text-muted-foreground hover:text-foreground"
+          className="gap-1 text-muted-foreground hover:text-foreground hover:cursor-pointer"
         >
           <ChevronLeft className="h-4 w-4" />
           {label}

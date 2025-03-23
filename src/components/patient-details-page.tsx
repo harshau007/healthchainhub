@@ -7,7 +7,7 @@ import { AlertTriangle } from "lucide-react";
 import { PatientDetailsSkeleton } from "./patient-details-skeleton";
 
 interface PatientDetailsPageProps {
-  patientId: number;
+  patientId: string;
 }
 
 export function PatientDetailsPage({ patientId }: PatientDetailsPageProps) {
