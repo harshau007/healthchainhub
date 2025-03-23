@@ -12,7 +12,7 @@ export class DataManager {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
-  private reconnectDelay = 5000; // 5 seconds
+  private reconnectDelay = 60000; // 5 seconds
 
   constructor() {
     this.eventSource = null;
