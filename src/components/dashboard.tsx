@@ -18,9 +18,7 @@ export default function Dashboard() {
   return (
     <div className="container mx-auto px-4 py-6 space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <h1 className="text-2xl font-bold md:text-3xl bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-transparent">
-          Hospital Dashboard
-        </h1>
+        <h1 className="text-2xl font-bold md:text-3xl">Hospital Dashboard</h1>
       </div>
       <HospitalMetricsSection metrics={data.hospitalMetrics} />
       <PatientsList patients={patientsToShow} />
