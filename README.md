@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Healthcare Management System PWA
 
-## Getting Started
+![Healthcare PWA Logo](https://via.placeholder.com/150) <!-- Replace with actual logo if available -->
 
-First, run the development server:
+A modern, production-quality Progressive Web Application (PWA) for managing healthcare operations. This application provides real-time monitoring of patient vital signs and hospital metrics, supports Role-Based Access Control (RBAC), and offers a minimalistic, mobile-first design with both light and dark themes. Built with Next.js, TypeScript, and TailwindCSS, it ensures a seamless user experience across devices.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Table of Contents
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [Healthcare Management System PWA](#healthcare-management-system-pwa)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Features](#features)
+  - [Technology Stack](#technology-stack)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Steps](#steps)
+  - [Usage](#usage)
+    - [Role-Based Access](#role-based-access)
+    - [Screens](#screens)
+  - [Contributing](#contributing)
+  - [License](#license)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Overview
 
-To learn more about Next.js, take a look at the following resources:
+The Healthcare Management System PWA is designed to streamline hospital operations and patient care. It integrates real-time data from an SSE (Server-Sent Events) endpoint, providing up-to-date information on patient vital signs and hospital metrics. The application supports different user roles, including hospital administrators, staff, and patients, each with tailored access to specific features and data.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Features
 
-## Deploy on Vercel
+- **Real-Time Data Monitoring**: Fetches and displays real-time patient vital signs and hospital metrics every 5 seconds via SSE.
+- **Role-Based Access Control (RBAC)**: Dedicated screens and permissions for admins, hospital staff, and patients.
+- **Progressive Web App (PWA)**: Installable on mobile and desktop devices with offline capabilities.
+- **Minimalistic & Responsive Design**: Mobile-first, clean UI with light and dark theme support.
+- **Notifications**: Toast notifications for key events and push notifications for critical updates.
+- **Typesafety**: Fully typesafe with TypeScript, ensuring robust and error-free code.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Technology Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) with PWA support via [next-pwa](https://github.com/shadowwalker/next-pwa)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [TailwindCSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Notifications**: [Sonner](https://sonner.emilkowal.ski/) for toast notifications
+- **Data Fetching**: Server-Sent Events (SSE)
+
+---
+
+## Installation
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v14 or higher)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+### Steps
+
+1. **Clone the repository**:
+
+   ```bash
+   git clone https://github.com/harshau007/healthcare-pwa.git
+   cd healthcare-pwa
+   ```
+
+2. **Install dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**:
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open the app**:
+   Visit `http://localhost:3000` in your browser.
+
+---
+
+## Usage
+
+### Role-Based Access
+
+The application supports three user roles:
+
+- **Admin**: Full access to hospital management and patient data.
+- **Hospital Staff**: Access to patient records and imaging.
+- **Patient**: Access to personal health data and appointments.
+
+To simulate login:
+
+- Navigate to the homepage (`/`).
+- Click on one of the login buttons to select a role (e.g., "Login as Admin").
+
+### Screens
+
+- **Dashboard**: Real-time overview of patient vital signs and hospital metrics.
+- **EHR (Electronic Health Records)**: View and manage patient health records.
+- **HMS (Hospital Management System)**: Manage appointments, beds, and billing.
+- **Imaging**: View patient imaging records.
+- **Patient Portal**: Patient-specific dashboard for appointments and health summaries.
+- **Patient Detail**: Detailed view of individual patient data.
+
+Each screen is accessible based on the user's role and permissions.
+
+---
+
+## Contributing
+
+We welcome contributions to improve the Healthcare Management System PWA. To contribute:
+
+1. **Fork the repository**.
+2. **Create a new branch** for your feature or bugfix.
+3. **Submit a pull request** with a clear description of your changes.
+
+Please ensure your code adheres to the project's coding standards and includes appropriate tests.
+
+For bug reports or feature requests, open an issue on the [GitHub repository](https://github.com/harshau007/healthcare-pwa/issues).
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
