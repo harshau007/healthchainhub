@@ -17,7 +17,7 @@ const APP_DESCRIPTION = "HealthChain";
 export const metadata: Metadata = {
   applicationName: APP_NAME,
   title: {
-    default: APP_DEFAULT_TITLE,
+    default: APP_NAME,
     template: APP_TITLE_TEMPLATE,
   },
   description: APP_DESCRIPTION,
