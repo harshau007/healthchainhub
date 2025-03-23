@@ -188,7 +188,7 @@ app.get("/events", (req: Request, res: Response) => {
   };
 
   // Send new data every 5 seconds
-  const intervalId = setInterval(sendEvent, 5000);
+  const intervalId = setInterval(sendEvent, 180000);
 
   // Clean up the interval when the client disconnects
   req.on("close", () => {

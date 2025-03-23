@@ -36,7 +36,11 @@ export class DataManager {
     this.closeConnection(); // Close any existing connection
 
     try {
-      this.eventSource = new EventSource("http://localhost:4000/events");
+      this.eventSource = new EventSource(
+        process.env.NODE_ENV == "development"
+          ? "http://localhost:4000/events"
+          : "https://healthchainhub.onrender.com/events"
+      );
 
       this.eventSource.onopen = () => {
         this.reconnectAttempts = 0;
