@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx tsx public/main.ts & next dev",
+    "dev": "npx tsx healthchainhubmockdata/main.ts & next dev",
     "build": "next build",
-    "start": "npx tsx public/main.ts & next start",
+    "start": "npx tsx healthchainhubmockdata/main.ts & next start",
+    "dummy": "npx tsx healthchainhubmockdata/main.ts",
     "lint": "next lint"
   },
   "dependencies": {
