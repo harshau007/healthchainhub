@@ -87,7 +87,7 @@ export function DataProvider({ children }: DataProviderProps) {
     return () => {
       cleanup();
     };
-  }, [setData]);
+  }, [previousData, setData]);
 
   const value = {
     isConnected,

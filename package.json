@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx tsx healthchainhubmockdata/main.ts & next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npx tsx healthchainhubmockdata/main.ts & next start",
     "lint": "next lint"
   },
   "dependencies": {

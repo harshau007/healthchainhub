@@ -70,7 +70,7 @@ function checkPatientVitalsAnomalies(
   anomalies: Anomaly[]
 ) {
   // Create a map of previous patients by ID for easy lookup
-  const prevPatientsMap = new Map<number, Patient>();
+  const prevPatientsMap = new Map<string, Patient>();
   previousData.patients.forEach((patient) => {
     prevPatientsMap.set(patient.id, patient);
   });
