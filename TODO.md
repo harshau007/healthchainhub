@@ -12,19 +12,19 @@
 
 These tasks are critical for the core functionality of the application and should be completed first.
 
-- [ ] **Set up Next.js with PWA support**
+- [x] **Set up Next.js with PWA support**
 
   - Install `next-pwa` and configure `next.config.js`.
   - Create `public/manifest.json` for PWA metadata (e.g., app name, icons, theme color).
   - Add service worker registration to enable offline capabilities and caching.
 
-- [ ] **Implement global state management with Zustand**
+- [x] **Implement global state management with Zustand**
 
   - Define a store with TypeScript types for patients, hospital metrics, user roles, and theme settings.
   - Integrate Server-Sent Events (SSE) for real-time data fetching with automatic updates in the store.
   - Handle SSE connection errors and display toast notifications for user feedback.
 
-- [ ] **Define TypeScript interfaces for SSE data**
+- [x] **Define TypeScript interfaces for SSE data**
 
   - Create interfaces for key data structures: `Patient`, `VitalSigns`, `EHR` (Electronic Health Record), `HMS` (Hospital Management System), `Imaging`, `PatientPortal`, and `HospitalMetrics`.
   - Ensure all components and the state management system use these types for full type safety.
@@ -54,12 +54,12 @@ These tasks are critical for the core functionality of the application and shoul
 
 These tasks enhance the user experience and application functionality but are not critical for the initial release.
 
-- [ ] **Implement theme toggle**
+- [x] **Implement theme toggle**
 
   - Add a theme toggle button to switch between light and dark modes.
   - Persist the theme choice across sessions using local storage.
 
-- [ ] **Enhance UI/UX with shadcn components**
+- [x] **Enhance UI/UX with shadcn components**
 
   - Use shadcn charts to visualize trends and metrics on the dashboard.
   - Implement responsive layouts for all screens using TailwindCSS utilities.

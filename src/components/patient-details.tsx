@@ -18,6 +18,11 @@ interface PatientDetailsProps {
 }
 
 export function PatientDetails({ patient }: PatientDetailsProps) {
+  const imagingPreviews: Record<string, string> = {
+    "X-Ray": "/dummy-xray.jpg",
+    MRI: "/dummy-mri.png",
+    "CT Scan": "/dummy-ct.png",
+  };
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -390,15 +395,26 @@ export function PatientDetails({ patient }: PatientDetailsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="aspect-video bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 rounded-lg flex items-center justify-center border border-indigo-100 dark:border-indigo-900">
-                  <p className="text-muted-foreground">
-                    {patient.imaging.lastImagingType} Image Preview
-                  </p>
+                <div className="aspect-video bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 rounded-lg flex items-center justify-center border border-indigo-100 dark:border-indigo-900 overflow-hidden">
+                  <img
+                    src={
+                      imagingPreviews[patient.imaging.lastImagingType] ||
+                      "/images/dummy-generic.jpg"
+                    }
+                    alt={`${patient.imaging.lastImagingType} Preview`}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                   <h4 className="font-medium mb-2">Findings</h4>
-                  <p>{patient.imaging.findings}</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {(
+                      patient.imaging.findings || ["No findings available."]
+                    ).map((line, idx) => (
+                      <li key={idx}>{line}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </CardContent>

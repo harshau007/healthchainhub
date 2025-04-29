@@ -20,7 +20,7 @@ export function PatientsList({ patients }: PatientsListProps) {
     <section className="space-y-6">
       {isPatientsPage && (
         <div className="px-4 sm:px-6 lg:px-8">
-          <BackButton href="/" label="Back to Dashboard" />
+          <BackButton label="Back to Dashboard" />
         </div>
       )}
 

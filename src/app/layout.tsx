@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { HeaderWrapper } from "@/components/header-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
 import { DataProvider } from "@/providers/data-provider";
 import type { Metadata, Viewport } from "next";
@@ -69,7 +69,7 @@ export default function RootLayout({
         >
           <DataProvider>
             <div className="flex min-h-screen flex-col">
-              <Header />
+              <HeaderWrapper />
               <div className="flex-1">{children}</div>
             </div>
             <Toaster richColors />

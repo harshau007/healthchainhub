@@ -50,7 +50,7 @@ interface Patient {
   imaging: {
     lastImagingType: string;
     imagingDate: string;
-    findings: string;
+    findings: string[];
   };
   patientPortal: {
     upcomingAppointments: string[];
@@ -63,6 +63,32 @@ interface Patient {
 // Helper arrays for dummy selection
 const names = ["Alice", "Bob", "Charlie", "Diana", "Eve"];
 const imagingTypes = ["X-Ray", "MRI", "CT Scan"];
+export const imagingFindings: Record<string, string[]> = {
+  "X-Ray": [
+    "No evidence of acute fracture or dislocation.",
+    "Mild bilateral apical pleural thickening, suggestive of old scar.",
+    "Cardiac silhouette within normal limits.",
+    "Lungs are clear.",
+    "No pleural effusion or pneumothorax.",
+  ],
+
+  MRI: [
+    "Subtle T2 hyperintense lesion in the right frontal lobe measuring 1.2 cm.",
+    "No surrounding vasogenic edema.",
+    "Ventricular size stable.",
+    "No midline shift.",
+    "No abnormal contrast enhancement.",
+  ],
+
+  "CT Scan": [
+    "Small 4 mm non‐calcified pulmonary nodule in the right lower lobe.",
+    "Mild mucosal thickening in the maxillary sinuses.",
+    "No evidence of intracranial hemorrhage or mass effect.",
+    "Bones demonstrate normal density, no acute fracture.",
+    "Vessels are unremarkable.",
+  ],
+};
+
 const healthSummaries = [
   "All vitals are stable.",
   "Slightly elevated blood pressure.",
@@ -81,6 +107,8 @@ const appointmentHistories = [
 function generatePatientData(id: number): Patient {
   const name = names[id % names.length];
   const uid = presetUUIDs[id % presetUUIDs.length];
+  const lastImagingType =
+    imagingTypes[Math.floor(Math.random() * imagingTypes.length)];
   return {
     id: uid,
     name,
@@ -127,12 +155,11 @@ function generatePatientData(id: number): Patient {
           : undefined,
     },
     imaging: {
-      lastImagingType:
-        imagingTypes[Math.floor(Math.random() * imagingTypes.length)],
+      lastImagingType: lastImagingType,
       imagingDate: new Date(
         Date.now() - Math.floor(Math.random() * 1000000000)
       ).toISOString(),
-      findings: "No significant abnormalities detected",
+      findings: imagingFindings[lastImagingType] || ["No findings available."],
     },
     patientPortal: {
       upcomingAppointments: ["2025-04-20", "2025-05-10"],

@@ -56,7 +56,7 @@ export interface HospitalManagementSystem {
 export interface Imaging {
   lastImagingType: string;
   imagingDate: string;
-  findings: string;
+  findings: string[];
 }
 
 export interface PatientPortal {

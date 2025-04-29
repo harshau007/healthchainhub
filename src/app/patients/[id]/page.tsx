@@ -12,7 +12,7 @@ export default async function PatientPage(props: { params: PatientPageProps }) {
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
-        <BackButton href="/" label="Back to Dashboard" />
+        <BackButton label="Back" />
         <Suspense fallback={<PatientDetailsSkeleton />}>
           <PatientDetailsPage patientId={id} />
         </Suspense>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useDataContext } from "@/providers/data-provider";
 import { Activity, Bell } from "lucide-react";
 import Link from "next/link";
+import { LogoutButton } from "./logout-button";
 
 export function Header() {
   const { isConnected, lastUpdated } = useDataContext();
@@ -29,6 +30,7 @@ export function Header() {
             <Bell className="h-4 w-4" />
           </Button>
           <ModeToggle />
+          <LogoutButton />
         </div>
       </div>
     </header>
