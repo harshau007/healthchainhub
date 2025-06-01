@@ -39,7 +39,7 @@ export default function RecordsPage() {
         const _signer = _provider.getSigner();
         setSigner(await _signer);
 
-        const contractAddress = process.env.CONTRACT_ADDRESS || "";
+        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
         if (!ethers.isAddress(contractAddress)) {
           setStatus("Invalid contract address in env.");
           return;
@@ -78,6 +78,32 @@ export default function RecordsPage() {
       return;
     }
 
+    // If doctor, verify patient granted consent
+    if (role === "Doctor" && userAddress) {
+      try {
+        setStatus("Checking patient consent…");
+        const has: boolean = await contract.hasConsent(
+          addressToFetch,
+          userAddress
+        );
+        if (!has) {
+          setStatus(
+            "Cannot fetch records: Patient has not granted you consent."
+          );
+          setRecords([]);
+          setRecordCount(0);
+          return;
+        }
+      } catch (e: any) {
+        console.error("Consent check error:", e);
+        setStatus(e.reason || "Error checking consent.");
+        setRecords([]);
+        setRecordCount(0);
+        return;
+      }
+    }
+
+    // At this point either Patient (auto-fetch) or Doctor with consent
     try {
       setStatus("Fetching record count…");
       const countBigInt: bigint = await contract.getRecordCount(addressToFetch);

@@ -83,13 +83,11 @@ export function Header(): JSX.Element {
                   </Link>
                 )}
                 <Link href="/records">
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded">
-                    View Records
-                  </button>
+                  <Button className="px-4 py-2 rounded">View Records</Button>
                 </Link>
                 {loggedIn && isRegistered && role === "Patient" && (
                   <Link href="/consent">
-                    <Button className="px-4 py-2 bg-purple-600 text-white rounded">
+                    <Button className="px-4 py-2 rounded">
                       Manage Consent
                     </Button>
                   </Link>

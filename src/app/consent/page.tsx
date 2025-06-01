@@ -46,9 +46,12 @@ export default function ConsentPage() {
           const _signer = await _provider.getSigner();
           setSigner(_signer);
 
-          const contractAddress = process.env.CONTRACT_ADDRESS || "";
+          const contractAddress =
+            process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
           if (!ethers.isAddress(contractAddress)) {
-            setStatus("Error: CONTRACT_ADDRESS is missing or invalid.");
+            setStatus(
+              "Error: NEXT_PUBLIC_CONTRACT_ADDRESS is missing or invalid."
+            );
             return;
           }
 

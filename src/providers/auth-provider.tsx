@@ -17,7 +17,7 @@ import {
 } from "react";
 import HealthcareAuthAbi from "../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || "";
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 type Role = "Patient" | "Doctor";
 export type RoleOnChain = "None" | "Patient" | "Doctor" | "Admin";
 

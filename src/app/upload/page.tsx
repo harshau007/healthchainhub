@@ -31,7 +31,7 @@ export default function UploadPage() {
         const _signer = await _provider.getSigner();
         setSigner(_signer);
 
-        const contractAddress = process.env.CONTRACT_ADDRESS || "";
+        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
         if (!ethers.isAddress(contractAddress)) {
           setStatus("Invalid contract address in env.");
           return;
