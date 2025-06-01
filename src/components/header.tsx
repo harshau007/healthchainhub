@@ -14,6 +14,7 @@ export function Header(): JSX.Element {
   const {
     address,
     isRegistered,
+    role,
     loggedIn,
     connectWallet,
     signup,
@@ -73,6 +74,27 @@ export function Header(): JSX.Element {
               />
 
               <ModeToggle />
+              <div className="flex flex-col md:flex-row gap-2 justify-center">
+                {loggedIn && isRegistered && role === "Doctor" && (
+                  <Link href="/upload">
+                    <Button size="sm" className="ml-2">
+                      Upload Health Record
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/records">
+                  <button className="px-4 py-2 bg-indigo-600 text-white rounded">
+                    View Records
+                  </button>
+                </Link>
+                {loggedIn && isRegistered && role === "Patient" && (
+                  <Link href="/consent">
+                    <Button className="px-4 py-2 bg-purple-600 text-white rounded">
+                      Manage Consent
+                    </Button>
+                  </Link>
+                )}
+              </div>
               <span className="truncate text-sm">
                 {`${address.slice(0, 6)}…${address.slice(-4)}`}
               </span>

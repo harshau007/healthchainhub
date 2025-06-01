@@ -75,10 +75,10 @@ export default function RootLayout({
                 <HeaderWrapper />
                 <AuthGuard>
                   <div className="flex-1">{children}</div>
+                  <Toaster richColors />
                 </AuthGuard>
               </div>
             </AuthProvider>
-            <Toaster richColors />
           </DataProvider>
         </ThemeProvider>
       </body>
