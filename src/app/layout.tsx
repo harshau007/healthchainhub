@@ -1,5 +1,7 @@
+import AuthGuard from "@/components/auth-guard";
 import { HeaderWrapper } from "@/components/header-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/providers/auth-provider";
 import { DataProvider } from "@/providers/data-provider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
@@ -68,10 +70,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <DataProvider>
-            <div className="flex min-h-screen flex-col">
-              <HeaderWrapper />
-              <div className="flex-1">{children}</div>
-            </div>
+            <AuthProvider>
+              <div className="flex min-h-screen flex-col">
+                <HeaderWrapper />
+                <AuthGuard>
+                  <div className="flex-1">{children}</div>
+                </AuthGuard>
+              </div>
+            </AuthProvider>
             <Toaster richColors />
           </DataProvider>
         </ThemeProvider>

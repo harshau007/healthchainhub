@@ -3,17 +3,27 @@
 import { ConnectionStatus } from "@/components/connection-status";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/providers/auth-provider";
 import { useDataContext } from "@/providers/data-provider";
-import { Activity, Bell } from "lucide-react";
+import { Activity } from "lucide-react";
 import Link from "next/link";
-import { LogoutButton } from "./logout-button";
+import { JSX } from "react";
 
-export function Header() {
+export function Header(): JSX.Element {
   const { isConnected, lastUpdated } = useDataContext();
+  const {
+    address,
+    isRegistered,
+    loggedIn,
+    connectWallet,
+    signup,
+    login,
+    logout,
+  } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Activity className="h-6 w-6 text-primary" />
           <Link href="/" className="text-xl font-bold tracking-tight">
@@ -21,16 +31,56 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
-          <ConnectionStatus
-            isConnected={isConnected}
-            lastUpdated={lastUpdated}
-          />
-          <Button variant="outline" size="icon">
-            <Bell className="h-4 w-4" />
-          </Button>
-          <ModeToggle />
-          <LogoutButton />
+        <div className="flex flex-wrap items-center gap-3">
+          {!address ? (
+            <Button onClick={connectWallet} size="sm">
+              Connect Wallet
+            </Button>
+          ) : !isRegistered ? (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="truncate text-sm">
+                {`${address.slice(0, 6)}…${address.slice(-4)}`}
+              </span>
+              <Button
+                onClick={() => signup("Patient")}
+                size="sm"
+                className="whitespace-nowrap"
+              >
+                Signup as Patient
+              </Button>
+              <Button
+                onClick={() => signup("Doctor")}
+                size="sm"
+                className="whitespace-nowrap"
+              >
+                Signup as Doctor
+              </Button>
+            </div>
+          ) : !loggedIn ? (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="truncate text-sm">
+                {`${address.slice(0, 6)}…${address.slice(-4)}`}
+              </span>
+              <Button onClick={login} size="sm">
+                Login
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2 items-center">
+              <ConnectionStatus
+                isConnected={isConnected}
+                lastUpdated={lastUpdated}
+              />
+
+              <ModeToggle />
+              <span className="truncate text-sm">
+                {`${address.slice(0, 6)}…${address.slice(-4)}`}
+              </span>
+              <Button onClick={logout} size="sm" variant="destructive">
+                Logout
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -75,13 +75,26 @@ The Healthcare Management System PWA is designed to streamline hospital operatio
    npm install
    ```
 
-3. **Run the development server**:
+3. **Run Hardhat Node**
+
+   ```bash
+   npx hardhat node
+   ```
+
+4. **Deploy Contract on Node**
+
+   ```bash
+   npx hardhat run scripts/deploy.ts --network localhost
+   ```
+
+5. **Copy Contract address in `src/providers/auth-provider.tsx`**
+6. **Run the development server**:
 
    ```bash
    npm run dev
    ```
 
-4. **Open the app**:
+7. **Open the app**:
    Visit `http://localhost:3000` in your browser.
 
 ---
