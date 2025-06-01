@@ -1,0 +1,44 @@
+sequenceDiagram
+    participant Browser
+    participant FogNode
+    participant IPFS
+    participant Ethereum
+
+    Browser->>Ethereum: User calls grantConsent(consumerAddr) via MetaMask
+    Ethereum-->>Browser: Transaction confirmed
+
+    Browser->>Browser: "Add New Record" form (file + recordType)
+    Browser->>FogNode: POST /fog/upload (file, patientAddr, signedNonce)
+    FogNode->>Ethereum: Fetch hasConsent(patient, fogNode)
+    Ethereum-->>FogNode: true/false
+    alt hasConsent==true
+        FogNode->>IPFS: ipfs.add(encryptedBlob)
+        IPFS-->>FogNode: { cid: Qm... }
+        FogNode->>Ethereum: addHealthRecord(patient, dataHash, recordType) + TIP/fee
+        Ethereum-->>FogNode: Tx hash / confirmed
+        FogNode-->>Browser: “Success: record added”
+    else
+        FogNode-->>Browser: “Error: No consent”
+    end
+
+    Browser->>Ethereum: tip(doctorAddr, "Thanks!") via MetaMask
+    Ethereum-->>Browser: Tx confirmed
+
+    Browser->>Browser: “View Patient Records” (doctor’s UI)
+    Browser->>Ethereum: getRecordCount(patient)
+    Ethereum-->>Browser: count = N
+    loop for i in [0..N-1]
+        Browser->>Ethereum: getHealthRecord(patient, i)
+        Ethereum-->>Browser: (dataHash, timestamp, recordType)
+        Browser->>FogNode: GET /fog/fetch?patient&index  (with signed proof)
+        FogNode->>Ethereum: hasConsent(patient, doctor)
+        Ethereum-->>FogNode: true/false
+        alt true
+            FogNode->>IPFS: ipfs.cat(cid mapped from dataHash)
+            IPFS-->>FogNode: encryptedBlob
+            FogNode->>FogNode: Decrypt → plaintext
+            FogNode-->>Browser: plaintext file (stream)
+        else 
+            FogNode-->>Browser: “No consent”
+        end
+    end
