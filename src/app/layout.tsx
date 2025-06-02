@@ -6,7 +6,6 @@ import { DataProvider } from "@/providers/data-provider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
-import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -75,7 +74,6 @@ export default function RootLayout({
                 <HeaderWrapper />
                 <AuthGuard>
                   <div className="flex-1">{children}</div>
-                  <Toaster richColors />
                 </AuthGuard>
               </div>
             </AuthProvider>

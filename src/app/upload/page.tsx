@@ -364,7 +364,7 @@ export default function UploadPage() {
             Securely upload and register health records on the blockchain
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 outline rounded-xl">
           <Badge variant="outline" className="flex items-center gap-1">
             <User className="h-3 w-3" />
             {role}

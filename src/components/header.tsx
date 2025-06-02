@@ -1,26 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { ConnectionStatus } from "@/components/connection-status";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/providers/auth-provider";
-import { useDataContext } from "@/providers/data-provider";
-import {
-  Activity,
-  Menu,
-  X,
-  Upload,
-  FileText,
-  Shield,
-  LogOut,
-  User,
-  ChevronDown,
-  Wallet,
-} from "lucide-react";
-import Link from "next/link";
-import type { JSX } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +12,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useAuth } from "@/providers/auth-provider";
+import { useDataContext } from "@/providers/data-provider";
+import {
+  Activity,
+  ChevronDown,
+  FileText,
+  LogOut,
+  Menu,
+  Shield,
+  Upload,
+  User,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { JSX } from "react";
+import { useState } from "react";
 
 export function Header(): JSX.Element {
   const { isConnected, lastUpdated } = useDataContext();
@@ -44,6 +49,7 @@ export function Header(): JSX.Element {
     logout,
   } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const renderAuthSection = () => {
     if (!address) {
@@ -100,10 +106,12 @@ export function Header(): JSX.Element {
     return (
       <div className="flex items-center gap-2">
         <div className="hidden md:flex items-center gap-2">
-          <ConnectionStatus
-            isConnected={isConnected}
-            lastUpdated={lastUpdated}
-          />
+          {role === "Doctor" && (
+            <ConnectionStatus
+              isConnected={isConnected}
+              lastUpdated={lastUpdated}
+            />
+          )}
           <ModeToggle />
         </div>
 
@@ -124,15 +132,17 @@ export function Header(): JSX.Element {
             <DropdownMenuItem className="flex justify-between">
               Role <Badge>{role}</Badge>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex justify-between">
-              Status{" "}
-              <Badge
-                variant="outline"
-                className={isConnected ? "text-green-500" : "text-red-500"}
-              >
-                {isConnected ? "Connected" : "Disconnected"}
-              </Badge>
-            </DropdownMenuItem>
+            {role === "Doctor" && (
+              <DropdownMenuItem className="flex justify-between">
+                Status{" "}
+                <Badge
+                  variant="outline"
+                  className={isConnected ? "text-green-500" : "text-red-500"}
+                >
+                  {isConnected ? "Connected" : "Disconnected"}
+                </Badge>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={logout}
@@ -153,7 +163,11 @@ export function Header(): JSX.Element {
     return (
       <div className="hidden md:flex items-center gap-2">
         <Link href="/records">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button
+            variant={pathname === "/records" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
             <FileText className="h-4 w-4" />
             Records
           </Button>
@@ -161,7 +175,11 @@ export function Header(): JSX.Element {
 
         {role === "Doctor" && (
           <Link href="/upload">
-            <Button variant="ghost" size="sm" className="gap-2">
+            <Button
+              variant={pathname === "/upload" ? "default" : "ghost"}
+              size="sm"
+              className="gap-2"
+            >
               <Upload className="h-4 w-4" />
               Upload
             </Button>
@@ -169,12 +187,18 @@ export function Header(): JSX.Element {
         )}
 
         {role === "Patient" && (
-          <Link href="/consent">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <Shield className="h-4 w-4" />
-              Consent
-            </Button>
-          </Link>
+          <>
+            <Link href="/consent">
+              <Button
+                variant={pathname === "/consent" ? "default" : "ghost"}
+                size="sm"
+                className="gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Consent
+              </Button>
+            </Link>
+          </>
         )}
       </div>
     );
@@ -192,25 +216,21 @@ export function Header(): JSX.Element {
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-[250px] sm:w-[300px]">
-          <div className="flex flex-col gap-6">
+          <SheetTitle></SheetTitle>
+          <div className="flex flex-col m-2 gap-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Activity className="h-5 w-5 text-primary" />
                 <span className="font-bold">HealthChain</span>
               </div>
-              {/* <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <X className="h-5 w-5" />
-                <span className="sr-only">Close</span>
-              </Button> */}
             </div>
 
             <div className="flex flex-col gap-1">
               <Link href="/records" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start gap-2">
+                <Button
+                  variant={pathname === "/records" ? "default" : "ghost"}
+                  className="w-full justify-start gap-2"
+                >
                   <FileText className="h-4 w-4" />
                   View Records
                 </Button>
@@ -219,7 +239,7 @@ export function Header(): JSX.Element {
               {role === "Doctor" && (
                 <Link href="/upload" onClick={() => setMobileMenuOpen(false)}>
                   <Button
-                    variant="ghost"
+                    variant={pathname === "/upload" ? "default" : "ghost"}
                     className="w-full justify-start gap-2"
                   >
                     <Upload className="h-4 w-4" />
@@ -229,24 +249,34 @@ export function Header(): JSX.Element {
               )}
 
               {role === "Patient" && (
-                <Link href="/consent" onClick={() => setMobileMenuOpen(false)}>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2"
+                <>
+                  <Link
+                    href="/consent"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Shield className="h-4 w-4" />
-                    Manage Consent
-                  </Button>
-                </Link>
+                    <Button
+                      variant={pathname === "/consent" ? "default" : "ghost"}
+                      className="w-full justify-start gap-2"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Manage Consent
+                    </Button>
+                  </Link>
+                </>
               )}
             </div>
 
             <div className="flex flex-col gap-2 mt-auto">
               <div className="flex items-center justify-between">
-                <ConnectionStatus
-                  isConnected={isConnected}
-                  lastUpdated={lastUpdated}
-                />
+                {role === "Doctor" && (
+                  <>
+                    <ConnectionStatus
+                      isConnected={isConnected}
+                      lastUpdated={lastUpdated}
+                    />
+                  </>
+                )}
+
                 <ModeToggle />
               </div>
 

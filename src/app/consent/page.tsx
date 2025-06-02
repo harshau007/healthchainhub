@@ -51,7 +51,7 @@ interface Consumer {
 const HEALTHCARE_PROVIDERS: Consumer[] = [
   {
     name: "Dr. Alice Johnson",
-    address: "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+    address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     type: "doctor",
   },
   {
@@ -66,12 +66,12 @@ const HEALTHCARE_PROVIDERS: Consumer[] = [
   },
   {
     name: "City General Hospital",
-    address: "0x8ba1f109551bD432803012645Hac136c22C501e",
+    address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
     type: "hospital",
   },
   {
     name: "Dr. Carol Williams (Cardiologist)",
-    address: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
     type: "specialist",
   },
 ];
@@ -508,7 +508,7 @@ export default function ConsentPage() {
             Control who can access your health records
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 outline rounded-xl">
           <Badge variant="outline" className="flex items-center gap-1">
             <User className="h-3 w-3" />
             Patient
