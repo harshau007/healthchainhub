@@ -73,8 +73,6 @@ HealthChainHub is a secure, dual-role (doctors & patients) healthcare platform t
 7. **Open the app**:
    Visit `http://localhost:3000` in your browser.
 
----
-
 ## 🌐 API Endpoints
 
 | Endpoint                                     | Method | Description                     |
