@@ -1,5 +1,6 @@
 "use client";
 
+import { ImageViewerDialog } from "@/components/image-viewer-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -267,12 +268,6 @@ export default function RecordsPage() {
     fetchRecords(patientAddressInput);
   };
 
-  const viewRecord = (dataHash: string) => {
-    const storedCid = localStorage.getItem(`cid:${dataHash}`);
-    const ipfsCid = storedCid || dataHash;
-    window.open(`https://gateway.pinata.cloud/ipfs/${ipfsCid}`, "_blank");
-  };
-
   const getRecordTypeIcon = (recordType: string) => {
     switch (recordType.toLowerCase()) {
       case "labreport":
@@ -493,14 +488,19 @@ export default function RecordsPage() {
                             Hash: {record.dataHash.slice(0, 16)}...
                           </div>
                         </div>
-                        <Button
-                          onClick={() => viewRecord(record.dataHash)}
-                          variant="outline"
-                          size="sm"
+                        <ImageViewerDialog
+                          dataHash={record.dataHash}
+                          recordType={record.recordType}
                         >
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          View on IPFS
-                        </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full sm:w-auto"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            View Record
+                          </Button>
+                        </ImageViewerDialog>
                       </div>
                     </div>
                   ))}

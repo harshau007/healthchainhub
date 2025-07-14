@@ -1,72 +1,47 @@
-# Healthcare Management System PWA
+# HealthChainHub
 
-![Healthcare PWA Logo](https://via.placeholder.com/150) <!-- Replace with actual logo if available -->
+**Blockchain-Enabled Trust Management in Fog-Based Healthcare System**
 
-A modern, production-quality Progressive Web Application (PWA) for managing healthcare operations. This application provides real-time monitoring of patient vital signs and hospital metrics, supports Role-Based Access Control (RBAC), and offers a minimalistic, mobile-first design with both light and dark themes. Built with Next.js, TypeScript, and TailwindCSS, it ensures a seamless user experience across devices.
+## 🚀 Project Overview
 
----
+HealthChainHub is a secure, dual-role (doctors & patients) healthcare platform that integrates fog-computing simulations and blockchain technology to manage electronic health records (EHR), real-time vitals, and document storage. Key features include wallet-based authentication, IPFS-backed document uploads via Pinata, and on-chain consent management to ensure privacy and trust.
 
-## Table of Contents
+## 🎯 Key Features
 
-- [Healthcare Management System PWA](#healthcare-management-system-pwa)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-  - [Features](#features)
-  - [Technology Stack](#technology-stack)
-  - [Installation](#installation)
-    - [Prerequisites](#prerequisites)
-    - [Steps](#steps)
-  - [Usage](#usage)
-    - [Role-Based Access](#role-based-access)
-    - [Screens](#screens)
-  - [Contributing](#contributing)
-  - [License](#license)
+- **Dual-Role Dashboards**
 
----
+  - **Patient:** View personal vitals, EHR, imaging, findings; grant/revoke consent.
+  - **Doctor:** Monitor hospital metrics (occupancy, beds), access consenting patient records, and upload new files.
 
-## Overview
+- **Real-Time Vitals Simulation**
 
-The Healthcare Management System PWA is designed to streamline hospital operations and patient care. It integrates real-time data from an SSE (Server-Sent Events) endpoint, providing up-to-date information on patient vital signs and hospital metrics. The application supports different user roles, including hospital administrators, staff, and patients, each with tailored access to specific features and data.
+  - Mock vital signs streamed via Server-Sent Events (SSE).
 
----
+- **Blockchain Integration**
 
-## Features
+  - Wallet-based signup/login.
+  - Smart contracts (Solidity) on a Hardhat local network for consent management.
+  - IPFS storage (via Pinata) for all medical documents.
 
-- **Real-Time Data Monitoring**: Fetches and displays real-time patient vital signs and hospital metrics every 5 seconds via SSE.
-- **Role-Based Access Control (RBAC)**: Dedicated screens and permissions for admins, hospital staff, and patients.
-- **Progressive Web App (PWA)**: Installable on mobile and desktop devices with offline capabilities.
-- **Minimalistic & Responsive Design**: Mobile-first, clean UI with light and dark theme support.
-- **Notifications**: Toast notifications for key events and push notifications for critical updates.
-- **Typesafety**: Fully typesafe with TypeScript, ensuring robust and error-free code.
+- **Consent-Driven Trust Layer**
 
----
+  - Patients control access: only granted parties can view or upload data.
 
-## Technology Stack
+## 📦 Tech Stack
 
-- **Framework**: [Next.js](https://nextjs.org/) with PWA support via [next-pwa](https://github.com/shadowwalker/next-pwa)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [TailwindCSS](https://tailwindcss.com/)
-- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **Notifications**: [Sonner](https://sonner.emilkowal.ski/) for toast notifications
-- **Data Fetching**: Server-Sent Events (SSE)
+- **Frontend:** Next.js 15 (App Directory) + TypeScript + Zustand
+- **Backend (Simulation):** Express.js SSE service
+- **Blockchain:** Hardhat local chain + Solidity smart contracts
+- **Storage:** IPFS (Pinata)
+- **State Management:** Zustand
 
----
-
-## Installation
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v14 or higher)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-
-### Steps
+## ⚙️ Getting Started
 
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/harshau007/healthcare-pwa.git
-   cd healthcare-pwa
+   git clone https://github.com/harshau007/healthchainhub.git
+   cd healthchainhub
    ```
 
 2. **Install dependencies**:
@@ -78,6 +53,7 @@ The Healthcare Management System PWA is designed to streamline hospital operatio
 3. **Run Hardhat Node**
 
    ```bash
+   cd blockchain/
    npx hardhat node
    ```
 
@@ -87,8 +63,8 @@ The Healthcare Management System PWA is designed to streamline hospital operatio
    npx hardhat run scripts/deploy.ts --network localhost
    ```
 
-5. **Copy Contract address in `src/providers/auth-provider.tsx`**
-6. **Run the development server**:
+5. **Copy Contract address in `.env.local`**
+6. **Run the development server in root**:
 
    ```bash
    npm run dev
@@ -99,48 +75,33 @@ The Healthcare Management System PWA is designed to streamline hospital operatio
 
 ---
 
-## Usage
+## 🌐 API Endpoints
 
-### Role-Based Access
+| Endpoint                                     | Method | Description                     |
+| -------------------------------------------- | ------ | ------------------------------- |
+| **SSE Vitals**`http://localhost:4000/events` | GET    | Stream mock vital signs via SSE |
 
-The application supports three user roles:
+## 💡 Roadmap & Potential Enhancements
 
-- **Admin**: Full access to hospital management and patient data.
-- **Hospital Staff**: Access to patient records and imaging.
-- **Patient**: Access to personal health data and appointments.
+- AI-driven anomaly detection & alerts
+- Predictive analytics dashboard for risk scoring
+- Telemedicine (secure video consultations)
+- Emergency alert notifications
+- Decentralized Identity (DID) integration
+- On-chain audit logs for tamper-evident tracking
+- FHIR interoperability
+- GDPR/HIPAA compliance modules
+- Mobile companion app
+- Smart contract billing & insurance automation
 
-To simulate login:
+## 🤝 Contributing
 
-- Navigate to the homepage (`/`).
-- Click on one of the login buttons to select a role (e.g., "Login as Admin").
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature-name`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature-name`)
+5. Open a pull request
 
-### Screens
-
-- **Dashboard**: Real-time overview of patient vital signs and hospital metrics.
-- **EHR (Electronic Health Records)**: View and manage patient health records.
-- **HMS (Hospital Management System)**: Manage appointments, beds, and billing.
-- **Imaging**: View patient imaging records.
-- **Patient Portal**: Patient-specific dashboard for appointments and health summaries.
-- **Patient Detail**: Detailed view of individual patient data.
-
-Each screen is accessible based on the user's role and permissions.
-
----
-
-## Contributing
-
-We welcome contributions to improve the Healthcare Management System PWA. To contribute:
-
-1. **Fork the repository**.
-2. **Create a new branch** for your feature or bugfix.
-3. **Submit a pull request** with a clear description of your changes.
-
-Please ensure your code adheres to the project's coding standards and includes appropriate tests.
-
-For bug reports or feature requests, open an issue on the [GitHub repository](https://github.com/harshau007/healthcare-pwa/issues).
-
----
-
-## License
+## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).

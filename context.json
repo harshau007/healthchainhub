@@ -1,0 +1,73 @@
+{
+  "projectName": "HealthChainHub",
+  "projectTagline": "Blockchain-Enabled Trust Management in Fog-Based Healthcare System",
+  "projectDescription": "HealthChainHub is a dual‑login platform (doctors & patients) built to securely record, share, and manage healthcare data using fog computing and blockchain. It simulates real‑time vital streams and employs IPFS for document storage, plus a consent‑based trust layer so only authorized parties can view or upload patient records.",
+  "architecture": {
+    "frontend": "Next.js 15 (App Directory) with TypeScript, Zustand state management",
+    "backend": {
+      "fogSimulation": "Express.js SSE service emitting mock vitals at intervals (endpoint: http://localhost:4000/events)",
+      "blockchain": {
+        "developmentChain": "Hardhat local network",
+        "smartContracts": "Solidity",
+        "authentication": "Wallet‑based login/signup",
+        "storage": "IPFS via Pinata for medical documents",
+        "consent": "On‑chain consent management via smart contracts"
+      }
+    }
+  },
+  "techStack": [
+    "Next.js 15 (App Directory)",
+    "TypeScript",
+    "Zustand for state management",
+    "Express.js for SSE backend",
+    "Hardhat for local development chain",
+    "Solidity for smart contracts",
+    "Pinata for IPFS storage",
+    "Blockchain: Ethereum-compatible"
+  ],
+  "userRoles": [
+    {
+      "role": "patient",
+      "capabilities": [
+        "Connect crypto wallet to sign up/login",
+        "View own dashboard: summary, live vitals",
+        "Browse full medical record (EHR, imaging, findings)",
+        "Grant or revoke consent to doctors, labs, etc."
+      ]
+    },
+    {
+      "role": "doctor",
+      "capabilities": [
+        "Connect crypto wallet to sign up/login",
+        "See hospital overview: occupancy, beds, patient list",
+        "View any consenting patient’s dashboard & records",
+        "Upload new documents to consenting patient’s IPFS record"
+      ]
+    }
+  ],
+  "navigationStructure": {
+    "patient": ["Dashboard", "Records", "Consent"],
+    "doctor": ["Dashboard", "Patients", "Records", "Upload"]
+  },
+  "dataFlows": [
+    "1. User connects wallet",
+    "2. User signs up as ‘patient’ or ‘doctor’",
+    "3. User logs in",
+    "4. SSE backend streams mock vital signs to frontend (http://localhost:4000/events)",
+    "5. Patients grant/revoke blockchain‑recorded consent via smart contracts",
+    "6. Doctors/labs can view/upload patient data only if consent exists"
+  ],
+  "blockchainFeatures": {
+    "auth": "Wallet‑based signup & login",
+    "storage": "IPFS uploads via Pinata",
+    "consent": "On‑chain grant/revoke access controls"
+  },
+  "endpoints": {
+    "sseVitals": "http://localhost:4000/events"
+  },
+  "notes": [
+    "No fog hardware yet—vitals simulated via SSE",
+    "All access is blocked unless patient‑granted consent exists",
+    "Doctors see all patients; patients see only their own data"
+  ]
+}

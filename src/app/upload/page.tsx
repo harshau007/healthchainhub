@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import HealthcareAuthPlusAbi from "../../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
+import FileUploadComponent from "@/components/file-upload";
 
 interface UploadStatus {
   message: string;
@@ -139,21 +140,6 @@ export default function UploadPage() {
       setPatientAddressInput(userAddress);
     }
   }, [loggedIn, role, userAddress]);
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setUploadStatus({
-        message: `File selected: ${selectedFile.name} (${(
-          selectedFile.size /
-          1024 /
-          1024
-        ).toFixed(2)} MB)`,
-        type: "success",
-      });
-    }
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -444,35 +430,17 @@ export default function UploadPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="file">Health Record File</Label>
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors">
-                    <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <Input
-                      id="file"
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg,.json,.txt,.doc,.docx"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <Label
-                      htmlFor="file"
-                      className="cursor-pointer text-sm font-medium text-primary hover:text-primary/80"
-                    >
-                      Click to select file or drag and drop
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Supported formats: PDF, Images, JSON, Text documents (Max
-                      10MB)
-                    </p>
-                    {file && (
-                      <div className="mt-3 p-2 bg-muted rounded-md">
-                        <p className="text-sm font-medium">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <Label>Health Record File</Label>
+                  <FileUploadComponent
+                    maxFiles={1}
+                    maxSize={10 * 1024 * 1024}
+                    accept={".pdf,.png,.jpg,.jpeg,.json,.txt,.doc,.docx"}
+                    multiple={false}
+                    onFilesChange={(files) => setFile(files[0] || null)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Supported formats: PDF, Images, JSON, Text documents (Max 10MB)
+                  </p>
                 </div>
 
                 <Button

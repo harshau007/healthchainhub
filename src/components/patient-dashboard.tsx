@@ -18,6 +18,7 @@ import {
   Calendar,
   CheckCircle,
   Clock,
+  ExternalLink,
   Eye,
   FileText,
   Heart,
@@ -32,6 +33,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import HealthcareAuthPlusAbi from "../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
+import { ImageViewerDialog } from "./image-viewer-dialog";
 
 interface RecordMeta {
   dataHash: string;
@@ -286,12 +288,6 @@ export default function PatientDashboard() {
     }
   };
 
-  const viewRecord = (dataHash: string) => {
-    const storedCid = localStorage.getItem(`cid:${dataHash}`);
-    const ipfsCid = storedCid || dataHash;
-    window.open(`https://gateway.pinata.cloud/ipfs/${ipfsCid}`, "_blank");
-  };
-
   const getRecordTypeIcon = (recordType: string) => {
     switch (recordType.toLowerCase()) {
       case "labreport":
@@ -491,14 +487,19 @@ export default function PatientDashboard() {
                             Hash: {rec.dataHash.slice(0, 16)}...
                           </div>
                         </div>
-                        <Button
-                          onClick={() => viewRecord(rec.dataHash)}
-                          variant="outline"
-                          size="sm"
+                        <ImageViewerDialog
+                          dataHash={rec.dataHash}
+                          recordType={rec.recordType}
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full sm:w-auto"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            View Record
+                          </Button>
+                        </ImageViewerDialog>
                       </div>
                     </div>
                   ))}
