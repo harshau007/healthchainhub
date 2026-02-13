@@ -148,7 +148,12 @@ export async function GET() {
                     hospitalMetrics
                 };
 
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+                try {
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+                } catch {
+                    // Controller already closed, stop interval
+                    clearInterval(interval);
+                }
             };
 
             // Send initial data

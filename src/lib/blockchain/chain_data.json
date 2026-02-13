@@ -19,12 +19,47 @@
   "records": {
     "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc": [
       {
-        "dataHash": "QmTestHash123",
+        "dataHash": "bafkreibmo2vdhth4xqlzldamujqmfllaloaz45exmbzyoehgnm2l66cdp4",
         "timestamp": 1700000000,
         "recordType": "Lab Results"
       }
     ]
   },
-  "consent": {},
-  "tips": []
+  "consent": {
+    "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc": {
+      "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266": true
+    }
+  },
+  "tips": [],
+  "beneficiaries": {},
+  "accessRequests": [
+    {
+      "id": "933f6o",
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "to": "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc",
+      "status": "Approved",
+      "timestamp": 1770990031624
+    }
+  ],
+  "invoices": [],
+  "transactions": [
+    {
+      "hash": "0xa2504004286fb504268f0c905f",
+      "from": "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc",
+      "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "action": "GrantConsent",
+      "data": {},
+      "timestamp": 1770990063072,
+      "status": "Success"
+    },
+    {
+      "hash": "0x2a3299ea0b50c88a76be3572ff18",
+      "from": "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc",
+      "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "action": "GrantConsent",
+      "data": {},
+      "timestamp": 1770990061277,
+      "status": "Success"
+    }
+  ]
 }

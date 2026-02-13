@@ -22,6 +22,7 @@
 - **IPFS Storage**: Integration with Pinata for sequestering medical files.
 - **Visual Record Viewer**: Built-in viewer for medical images (X-Rays, MRIs).
 - **Vital Tracking**: Charts for standard vital signs (Temperature, BP, Heart Rate).
+- **Ledger**: View all the transactions that have been made on the blockchain.
 
 ## 🎨 UI/UX Design
 - **High-End Aesthetic**: Glassmorphism, deep dark mode, and refined typography (Manrope + JetBrains Mono).

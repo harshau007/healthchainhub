@@ -9,7 +9,23 @@ export class HealthcareAuthSimulator {
         // Ensure new fields exist if reading from old data
         if (!this.data.beneficiaries) this.data.beneficiaries = {};
         if (!this.data.accessRequests) this.data.accessRequests = [];
+        if (!this.data.accessRequests) this.data.accessRequests = [];
         if (!this.data.invoices) this.data.invoices = [];
+        if (!this.data.transactions) this.data.transactions = [];
+    }
+
+    private logTransaction(action: string, from: string, to: string | undefined, data: any, status: "Success" | "Failed" = "Success") {
+        const tx: any = {
+            hash: "0x" + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2),
+            from: from.toLowerCase(),
+            to: to?.toLowerCase(),
+            action,
+            data,
+            timestamp: Date.now(),
+            status
+        };
+        if (!this.data.transactions) this.data.transactions = [];
+        this.data.transactions.unshift(tx); // Newest first
     }
 
     private save() {
@@ -51,6 +67,7 @@ export class HealthcareAuthSimulator {
             isRegistered: true,
         };
         this.save();
+        this.logTransaction("Register", address, undefined, { role });
         return true;
     }
 
@@ -74,6 +91,7 @@ export class HealthcareAuthSimulator {
         }
 
         this.data.beneficiaries[pAddr] = bAddr;
+        this.logTransaction("AddBeneficiary", patient, beneficiary, {});
         this.save();
     }
 
@@ -150,6 +168,7 @@ export class HealthcareAuthSimulator {
             this.data.consent[pAddr] = {};
         }
         this.data.consent[pAddr][cAddr] = true;
+        this.logTransaction("GrantConsent", patient, consumer, {});
         this.save();
     }
 
@@ -159,6 +178,7 @@ export class HealthcareAuthSimulator {
 
         if (this.data.consent[pAddr]) {
             this.data.consent[pAddr][cAddr] = false;
+            this.logTransaction("RevokeConsent", patient, consumer, {});
             this.save();
         }
     }
@@ -195,6 +215,7 @@ export class HealthcareAuthSimulator {
         };
 
         this.data.records[pAddr].push(record);
+        this.logTransaction("AddRecord", sender, patient, { recordType, dataHash });
         this.save();
         return record;
     }
@@ -267,5 +288,44 @@ export class HealthcareAuthSimulator {
             timestamp: Date.now()
         });
         this.save();
+        this.logTransaction("Tip", from, to, { amount, message });
+    }
+
+    // --- Emergency Access ---
+    breakGlassAccess(doctor: string, patient: string, reason: string) {
+        const dAddr = doctor.toLowerCase();
+        const pAddr = patient.toLowerCase();
+
+        if (this.getUser(dAddr).role !== "Doctor") {
+            throw new Error("Only doctors can perform emergency access");
+        }
+
+        // Grant consent immediately
+        if (!this.data.consent[pAddr]) {
+            this.data.consent[pAddr] = {};
+        }
+        this.data.consent[pAddr][dAddr] = true;
+
+        const log = {
+            id: Math.random().toString(36).substring(7),
+            doctor: dAddr,
+            patient: pAddr,
+            reason,
+            timestamp: Date.now()
+        };
+
+        if (!this.data.emergencyLogs) this.data.emergencyLogs = [];
+        this.data.emergencyLogs.push(log);
+
+        this.logTransaction("EmergencyAccess", dAddr, pAddr, { reason, logId: log.id }, "Success"); // Critical status logic handled in UI
+        this.save();
+    }
+
+    getTransactions(address?: string): any[] {
+        if (!address) return this.data.transactions || [];
+        const normAddr = address.toLowerCase();
+        return (this.data.transactions || []).filter(tx =>
+            tx.from === normAddr || tx.to === normAddr
+        );
     }
 }

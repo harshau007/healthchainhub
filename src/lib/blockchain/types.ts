@@ -31,6 +31,24 @@ export interface Invoice {
     txHash?: string;
 }
 
+export interface EmergencyLog {
+    id: string;
+    doctor: string;
+    patient: string;
+    reason: string;
+    timestamp: number;
+}
+
+export interface Transaction {
+    hash: string;
+    from: string;
+    to?: string;
+    action: string;
+    data: any;
+    timestamp: number;
+    status: "Success" | "Failed";
+}
+
 export interface SimulationData {
     users: Record<string, UserInfo>;
     // patient address -> list of records
@@ -55,4 +73,10 @@ export interface SimulationData {
         message: string;
         timestamp: number;
     }>;
+
+    // critical audit logs
+    emergencyLogs: EmergencyLog[];
+
+    // list of all transactions
+    transactions: Transaction[];
 }

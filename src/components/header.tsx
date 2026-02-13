@@ -87,6 +87,10 @@ export function Header(): JSX.Element {
                 <Shield className="mr-2 h-4 w-4" />
                 Doctor
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => signup("Admin")}>
+                <Shield className="mr-2 h-4 w-4" />
+                Admin
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -198,6 +202,17 @@ export function Header(): JSX.Element {
           </Button>
         </Link>
 
+        <Link href="/ledger">
+          <Button
+            variant={pathname === "/ledger" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <Activity className="h-4 w-4" />
+            Ledger
+          </Button>
+        </Link>
+
         {role === "Doctor" && (
           <Link href="/upload">
             <Button
@@ -288,6 +303,16 @@ export function Header(): JSX.Element {
                 >
                   <CreditCard className="h-4 w-4" />
                   Invoices
+                </Button>
+              </Link>
+
+              <Link href="/ledger" onClick={() => setMobileMenuOpen(false)}>
+                <Button
+                  variant={pathname === "/ledger" ? "default" : "ghost"}
+                  className="w-full justify-start gap-2"
+                >
+                  <Activity className="h-4 w-4" />
+                  Ledger
                 </Button>
               </Link>
 

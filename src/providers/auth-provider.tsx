@@ -11,7 +11,7 @@ import { blockchainClient } from "@/lib/blockchain/client";
 import { useSimulation } from "@/components/blockchain/simulation-provider";
 
 // Re-using same types for compatibility
-type Role = "Patient" | "Doctor";
+type Role = "Patient" | "Doctor" | "Admin";
 export type RoleOnChain = "None" | "Patient" | "Doctor" | "Admin";
 
 interface AuthContextType {
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signup(roleChoice: "Patient" | "Doctor") {
+  async function signup(roleChoice: "Patient" | "Doctor" | "Admin") {
     if (!address) {
       alert("Connect wallet first");
       return;

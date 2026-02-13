@@ -68,6 +68,9 @@ export async function POST(
             case "payInvoice":
                 result = simulator.payInvoice(body.invoiceId);
                 break;
+            case "breakGlassAccess":
+                result = simulator.breakGlassAccess(body.doctor, body.patient, body.reason);
+                break;
 
             default:
                 return NextResponse.json(
@@ -127,6 +130,9 @@ export async function GET(
                 break;
             case "getInvoices":
                 result = simulator.getInvoices(searchParams.get("user")!);
+                break;
+            case "getTransactions":
+                result = simulator.getTransactions(searchParams.get("address") || undefined);
                 break;
 
             default:

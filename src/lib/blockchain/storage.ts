@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { SimulationData } from "./types";
 
-const DATA_FILE = path.join(process.cwd(), "src/lib/simulation/chain_data.json");
+const DATA_FILE = path.join(process.cwd(), "src/lib/blockchain/chain_data.json");
 
 const INITIAL_DATA: SimulationData = {
     users: {},
@@ -11,7 +11,9 @@ const INITIAL_DATA: SimulationData = {
     tips: [],
     beneficiaries: {},
     accessRequests: [],
-    invoices: []
+    invoices: [],
+    emergencyLogs: [],
+    transactions: []
 };
 
 // In-memory fallback for Vercel/Serverless where FS is read-only

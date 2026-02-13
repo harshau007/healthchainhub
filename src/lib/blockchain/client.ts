@@ -118,6 +118,14 @@ export class BlockchainClient {
     async payInvoice(invoiceId: string): Promise<void> {
         return this.post("payInvoice", { invoiceId });
     }
+
+    async breakGlassAccess(doctor: string, patient: string, reason: string): Promise<void> {
+        return this.post("breakGlassAccess", { doctor, patient, reason });
+    }
+
+    async getTransactions(address?: string): Promise<import("./types").Transaction[]> {
+        return this.get("getTransactions", address ? { address } : {});
+    }
 }
 
 export const blockchainClient = BlockchainClient.getInstance();
