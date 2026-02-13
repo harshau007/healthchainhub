@@ -14,26 +14,50 @@ const INITIAL_DATA: SimulationData = {
     invoices: []
 };
 
-// Helper to ensure file exists
+// In-memory fallback for Vercel/Serverless where FS is read-only
+let memoryStore: SimulationData | null = null;
+
+// Helper to ensure file exists (only works if FS is writable)
 function ensureFile() {
-    if (!fs.existsSync(DATA_FILE)) {
-        fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-        fs.writeFileSync(DATA_FILE, JSON.stringify(INITIAL_DATA, null, 2));
+    try {
+        if (!fs.existsSync(DATA_FILE)) {
+            fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+            fs.writeFileSync(DATA_FILE, JSON.stringify(INITIAL_DATA, null, 2));
+        }
+    } catch {
+        // Ignore FS errors in serverless
     }
 }
 
 export function readData(): SimulationData {
-    ensureFile();
+    // If we have data in memory, use it (simulation state persistence in hot lambda)
+    if (memoryStore) return memoryStore;
+
     try {
-        const raw = fs.readFileSync(DATA_FILE, "utf-8");
-        return JSON.parse(raw);
-    } catch (error) {
-        console.error("Failed to read simulation data:", error);
-        return INITIAL_DATA;
+        ensureFile();
+        if (fs.existsSync(DATA_FILE)) {
+            const raw = fs.readFileSync(DATA_FILE, "utf-8");
+            memoryStore = JSON.parse(raw);
+            return memoryStore!;
+        }
+    } catch {
+        // FS failed, use initial data
     }
+
+    // Fallback to initial data if file doesn't exist or can't be read
+    if (!memoryStore) {
+        memoryStore = JSON.parse(JSON.stringify(INITIAL_DATA));
+    }
+    return memoryStore!;
 }
 
 export function writeData(data: SimulationData) {
-    ensureFile();
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    memoryStore = data; // Always update memory
+    try {
+        ensureFile();
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    } catch {
+        // Ignore FS write errors (Vercel)
+        // We rely on memoryStore for the session lifetime
+    }
 }
