@@ -1,36 +1,39 @@
 "use client";
 
-import { ethers } from "ethers";
 import { useState } from "react";
-import HealthcareAuthPlusAbi from "../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
+import { blockchainClient } from "@/lib/blockchain/client";
+import { useAuth } from "@/providers/auth-provider";
+import { useSimulation } from "@/components/blockchain/simulation-provider";
 
 export function TipForm() {
+  const { address } = useAuth();
+  const { sendTransaction } = useSimulation();
+
   const [toAddress, setToAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("0.001");
   const [message, setMessage] = useState<string>("Thanks!");
 
   async function handleTip() {
-    if (!ethers.isAddress(toAddress)) {
+    if (!address) {
+      alert("Please connect wallet first");
+      return;
+    }
+    if (!toAddress.startsWith("0x")) {
       alert("Invalid address");
       return;
     }
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum as any);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        process.env.CONTRACT_ADDRESS || "",
-        HealthcareAuthPlusAbi.abi,
-        await signer
+      await sendTransaction(
+        () => blockchainClient.tip(address, toAddress, amount, message),
+        {
+          to: toAddress,
+          amount: amount,
+          functionName: "SEND TRADING TIP"
+        }
       );
-      const tx = await contract.tip(toAddress, message, {
-        value: ethers.parseEther(amount),
-      });
-      await tx.wait();
       alert("Tip sent!");
     } catch (e: any) {
-      console.error(e);
-      alert("Error sending tip");
+      console.log("Tip failed or rejected", e);
     }
   }
 

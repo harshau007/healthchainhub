@@ -23,12 +23,15 @@ import { useDataContext } from "@/providers/data-provider";
 import {
   Activity,
   ChevronDown,
+  CreditCard,
+  FileKey,
   FileText,
   LogOut,
   Menu,
   Shield,
   Upload,
   User,
+  Users,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -173,6 +176,28 @@ export function Header(): JSX.Element {
           </Button>
         </Link>
 
+        <Link href="/access-requests">
+          <Button
+            variant={pathname === "/access-requests" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <FileKey className="h-4 w-4" />
+            Requests
+          </Button>
+        </Link>
+
+        <Link href="/invoices">
+          <Button
+            variant={pathname === "/invoices" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <CreditCard className="h-4 w-4" />
+            Invoices
+          </Button>
+        </Link>
+
         {role === "Doctor" && (
           <Link href="/upload">
             <Button
@@ -196,6 +221,16 @@ export function Header(): JSX.Element {
               >
                 <Shield className="h-4 w-4" />
                 Consent
+              </Button>
+            </Link>
+            <Link href="/beneficiary">
+              <Button
+                variant={pathname === "/beneficiary" ? "default" : "ghost"}
+                size="sm"
+                className="gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Beneficiary
               </Button>
             </Link>
           </>
@@ -236,6 +271,26 @@ export function Header(): JSX.Element {
                 </Button>
               </Link>
 
+              <Link href="/access-requests" onClick={() => setMobileMenuOpen(false)}>
+                <Button
+                  variant={pathname === "/access-requests" ? "default" : "ghost"}
+                  className="w-full justify-start gap-2"
+                >
+                  <FileKey className="h-4 w-4" />
+                  Access Requests
+                </Button>
+              </Link>
+
+              <Link href="/invoices" onClick={() => setMobileMenuOpen(false)}>
+                <Button
+                  variant={pathname === "/invoices" ? "default" : "ghost"}
+                  className="w-full justify-start gap-2"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Invoices
+                </Button>
+              </Link>
+
               {role === "Doctor" && (
                 <Link href="/upload" onClick={() => setMobileMenuOpen(false)}>
                   <Button
@@ -260,6 +315,18 @@ export function Header(): JSX.Element {
                     >
                       <Shield className="h-4 w-4" />
                       Manage Consent
+                    </Button>
+                  </Link>
+                  <Link
+                    href="/beneficiary"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Button
+                      variant={pathname === "/beneficiary" ? "default" : "ghost"}
+                      className="w-full justify-start gap-2"
+                    >
+                      <Users className="h-4 w-4" />
+                      Manage Beneficiary
                     </Button>
                   </Link>
                 </>

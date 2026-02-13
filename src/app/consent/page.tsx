@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/providers/auth-provider";
-import { ethers } from "ethers";
+import { blockchainClient } from "@/lib/blockchain/client";
+import { useSimulation } from "@/components/blockchain/simulation-provider";
 import {
   AlertCircle,
   CheckCircle,
@@ -34,7 +35,6 @@ import {
   UserX,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import HealthcareAuthPlusAbi from "../../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
 
 interface ConsentStatus {
   message: string;
@@ -78,6 +78,7 @@ const HEALTHCARE_PROVIDERS: Consumer[] = [
 
 export default function ConsentPage() {
   const { address: patientAddress, role, loggedIn } = useAuth();
+  const { sendTransaction } = useSimulation();
 
   const [selectedConsumer, setSelectedConsumer] = useState<string>(
     HEALTHCARE_PROVIDERS[0].address
@@ -91,111 +92,30 @@ export default function ConsentPage() {
     Record<string, boolean>
   >({});
 
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-
-  // Initialize wallet and contract
+  // Load consent statuses when ready
   useEffect(() => {
-    if (typeof window === "undefined" || !(window as any).ethereum) {
-      setStatus({
-        message: "MetaMask not detected. Please install MetaMask to continue.",
-        type: "error",
-      });
-      return;
-    }
+    const loadAllConsentStatuses = async () => {
+      if (!patientAddress) return;
 
-    const initializeWallet = async () => {
       try {
-        const _provider = new ethers.BrowserProvider((window as any).ethereum);
-        setProvider(_provider);
-
-        await _provider.send("eth_requestAccounts", []);
-        const _signer = await _provider.getSigner();
-        setSigner(_signer);
-
-        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
-
-        // Validate contract address format
-        if (!contractAddress) {
-          setStatus({
-            message:
-              "Contract address not configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
+        const statuses: Record<string, boolean> = {};
+        for (const provider of HEALTHCARE_PROVIDERS) {
+          const hasConsent = await blockchainClient.hasConsent(
+            patientAddress,
+            provider.address
+          );
+          statuses[provider.address] = hasConsent;
         }
-
-        if (
-          !contractAddress.startsWith("0x") ||
-          contractAddress.length !== 42
-        ) {
-          setStatus({
-            message:
-              "Invalid contract address format. Must be a valid Ethereum address starting with 0x.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (!ethers.isAddress(contractAddress)) {
-          setStatus({
-            message:
-              "Invalid contract address. Please check the NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        const _contract = new ethers.Contract(
-          contractAddress,
-          HealthcareAuthPlusAbi.abi,
-          _signer
-        );
-        setContract(_contract);
-
-        setStatus({
-          message: "Wallet connected successfully.",
-          type: "success",
-        });
-      } catch (err: any) {
-        console.error("Wallet connection error:", err);
-        setStatus({
-          message: `Unable to connect wallet: ${
-            err.message || "Please try again."
-          }`,
-          type: "error",
-        });
+        setConsentStatuses(statuses);
+      } catch (error) {
+        console.error("Error loading consent statuses:", error);
       }
     };
 
-    initializeWallet();
-  }, []);
-
-  // Load consent statuses when contract is ready
-  useEffect(() => {
-    if (contract && patientAddress && loggedIn && role === "Patient") {
+    if (patientAddress && loggedIn && role === "Patient") {
       loadAllConsentStatuses();
     }
-  }, [contract, patientAddress, loggedIn, role]);
-
-  const loadAllConsentStatuses = async () => {
-    if (!contract || !patientAddress) return;
-
-    try {
-      const statuses: Record<string, boolean> = {};
-      for (const provider of HEALTHCARE_PROVIDERS) {
-        const hasConsent = await contract.hasConsent(
-          patientAddress,
-          provider.address
-        );
-        statuses[provider.address] = hasConsent;
-      }
-      setConsentStatuses(statuses);
-    } catch (error) {
-      console.error("Error loading consent statuses:", error);
-    }
-  };
+  }, [patientAddress, loggedIn, role]);
 
   const handleGrant = async () => {
     if (!loggedIn || role !== "Patient") {
@@ -206,17 +126,9 @@ export default function ConsentPage() {
       return;
     }
 
-    if (!contract || !patientAddress) {
+    if (!patientAddress) {
       setStatus({
-        message: "Contract or patient address not ready.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (!ethers.isAddress(selectedConsumer)) {
-      setStatus({
-        message: "Invalid healthcare provider address.",
+        message: "Patient address not ready.",
         type: "error",
       });
       return;
@@ -229,13 +141,13 @@ export default function ConsentPage() {
     });
 
     try {
-      const tx = await contract.grantConsent(selectedConsumer);
-      setStatus({
-        message: `Transaction submitted: ${tx.hash}. Waiting for confirmation...`,
-        type: "loading",
-      });
-
-      await tx.wait();
+      await sendTransaction(
+        () => blockchainClient.grantConsent(patientAddress, selectedConsumer),
+        {
+          to: selectedConsumer,
+          functionName: "GRANT CONSENT"
+        }
+      );
 
       const providerName =
         HEALTHCARE_PROVIDERS.find((p) => p.address === selectedConsumer)
@@ -253,7 +165,7 @@ export default function ConsentPage() {
     } catch (error: any) {
       console.error("Grant error:", error);
       setStatus({
-        message: error.reason || "Failed to grant consent. Please try again.",
+        message: error.message || "Failed to grant consent. Please try again.",
         type: "error",
       });
     } finally {
@@ -270,17 +182,9 @@ export default function ConsentPage() {
       return;
     }
 
-    if (!contract || !patientAddress) {
+    if (!patientAddress) {
       setStatus({
-        message: "Contract or patient address not ready.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (!ethers.isAddress(selectedConsumer)) {
-      setStatus({
-        message: "Invalid healthcare provider address.",
+        message: "Patient address not ready.",
         type: "error",
       });
       return;
@@ -293,13 +197,13 @@ export default function ConsentPage() {
     });
 
     try {
-      const tx = await contract.revokeConsent(selectedConsumer);
-      setStatus({
-        message: `Transaction submitted: ${tx.hash}. Waiting for confirmation...`,
-        type: "loading",
-      });
-
-      await tx.wait();
+      await sendTransaction(
+        () => blockchainClient.revokeConsent(patientAddress, selectedConsumer),
+        {
+          to: selectedConsumer,
+          functionName: "REVOKE CONSENT"
+        }
+      );
 
       const providerName =
         HEALTHCARE_PROVIDERS.find((p) => p.address === selectedConsumer)
@@ -317,7 +221,7 @@ export default function ConsentPage() {
     } catch (error: any) {
       console.error("Revoke error:", error);
       setStatus({
-        message: error.reason || "Failed to revoke consent. Please try again.",
+        message: error.message || "Failed to revoke consent. Please try again.",
         type: "error",
       });
     } finally {
@@ -334,17 +238,9 @@ export default function ConsentPage() {
       return;
     }
 
-    if (!contract || !patientAddress) {
+    if (!patientAddress) {
       setStatus({
-        message: "Contract or patient address not ready.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (!ethers.isAddress(selectedConsumer)) {
-      setStatus({
-        message: "Invalid healthcare provider address.",
+        message: "Patient address not ready.",
         type: "error",
       });
       return;
@@ -357,7 +253,7 @@ export default function ConsentPage() {
     });
 
     try {
-      const hasConsent: boolean = await contract.hasConsent(
+      const hasConsent = await blockchainClient.hasConsent(
         patientAddress,
         selectedConsumer
       );
@@ -366,9 +262,8 @@ export default function ConsentPage() {
           ?.name || "Provider";
 
       setStatus({
-        message: `Consent status for ${providerName}: ${
-          hasConsent ? "Granted" : "Not granted"
-        }`,
+        message: `Consent status for ${providerName}: ${hasConsent ? "Granted" : "Not granted"
+          }`,
         type: hasConsent ? "success" : "warning",
       });
 
@@ -380,7 +275,7 @@ export default function ConsentPage() {
     } catch (error: any) {
       console.error("Check error:", error);
       setStatus({
-        message: error.reason || "Failed to check consent status.",
+        message: error.message || "Failed to check consent status.",
         type: "error",
       });
     } finally {

@@ -11,18 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/providers/auth-provider";
-import { ethers } from "ethers";
 import {
   Activity,
-  AlertCircle,
   Calendar,
-  CheckCircle,
   Clock,
   ExternalLink,
   Eye,
   FileText,
   Heart,
-  Loader2,
   MessageSquare,
   Shield,
   Thermometer,
@@ -31,9 +27,10 @@ import {
   UserX,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import HealthcareAuthPlusAbi from "../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
+import { useEffect, useState, useCallback } from "react";
 import { ImageViewerDialog } from "./image-viewer-dialog";
+import { blockchainClient } from "@/lib/blockchain/client";
+
 
 interface RecordMeta {
   dataHash: string;
@@ -60,6 +57,24 @@ interface DashboardStatus {
   type: "idle" | "loading" | "success" | "error" | "warning";
 }
 
+const MOCK_DOCTORS = [
+  {
+    name: "Dr. Alice Johnson",
+    address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    specialty: "Cardiologist",
+  },
+  {
+    name: "Dr. Bob Smith",
+    address: "0x2546BcD3c84621e976D8185a91A922aE77ECEc30",
+    specialty: "General Practitioner",
+  },
+  {
+    name: "LabCorp Diagnostics",
+    address: "0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097",
+    specialty: "Lab",
+  },
+];
+
 export default function PatientDashboard() {
   const { address: patientAddress, role, loggedIn } = useAuth();
 
@@ -72,7 +87,7 @@ export default function PatientDashboard() {
     respiratoryRate: 16,
   });
 
-  const [mockPortal, setMockPortal] = useState<PatientPortal>({
+  const [mockPortal] = useState<PatientPortal>({
     upcomingAppointments: ["2025-06-15", "2025-07-01"],
     messages: [
       "Your latest blood test results are available.",
@@ -83,34 +98,13 @@ export default function PatientDashboard() {
       "All vitals within normal range. Keep up the good work with your exercise routine!",
   });
 
-  // Contract setup
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-
   // On-chain records
   const [recordCount, setRecordCount] = useState<number>(0);
   const [recentRecords, setRecentRecords] = useState<RecordMeta[]>([]);
   const [loadingRecords, setLoadingRecords] = useState<boolean>(false);
 
   // Consent management
-  const MOCK_DOCTORS = [
-    {
-      name: "Dr. Alice Johnson",
-      address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-      specialty: "Cardiologist",
-    },
-    {
-      name: "Dr. Bob Smith",
-      address: "0x2546BcD3c84621e976D8185a91A922aE77ECEc30",
-      specialty: "General Practitioner",
-    },
-    {
-      name: "LabCorp Diagnostics",
-      address: "0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097",
-      specialty: "Lab",
-    },
-  ];
+
 
   const [consentList, setConsentList] = useState<typeof MOCK_DOCTORS>([]);
   const [status, setStatus] = useState<DashboardStatus>({
@@ -118,90 +112,52 @@ export default function PatientDashboard() {
     type: "idle",
   });
 
-  // Initialize provider, signer, contract
-  useEffect(() => {
-    if (typeof window === "undefined" || !(window as any).ethereum) {
-      setStatus({
-        message: "MetaMask not detected. Please install MetaMask to continue.",
-        type: "error",
-      });
-      return;
-    }
+  const loadRecentRecords = useCallback(async () => {
+    if (!patientAddress) return;
+    setLoadingRecords(true);
+    try {
+      const count = await blockchainClient.getRecordCount(patientAddress);
+      setRecordCount(count);
 
-    const initializeWallet = async () => {
-      try {
-        const _provider = new ethers.BrowserProvider((window as any).ethereum);
-        setProvider(_provider);
-
-        await _provider.send("eth_requestAccounts", []);
-        const _signer = await _provider.getSigner();
-        setSigner(_signer);
-
-        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
-
-        // Validate contract address format
-        if (!contractAddress) {
-          setStatus({
-            message:
-              "Contract address not configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (
-          !contractAddress.startsWith("0x") ||
-          contractAddress.length !== 42
-        ) {
-          setStatus({
-            message:
-              "Invalid contract address format. Must be a valid Ethereum address starting with 0x.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (!ethers.isAddress(contractAddress)) {
-          setStatus({
-            message:
-              "Invalid contract address. Please check the NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        const _contract = new ethers.Contract(
-          contractAddress,
-          HealthcareAuthPlusAbi.abi,
-          _signer
-        );
-        setContract(_contract);
-
-        setStatus({
-          message: "Dashboard loaded successfully.",
-          type: "success",
-        });
-      } catch (err: any) {
-        console.error("Wallet connection error:", err);
-        setStatus({
-          message: `Unable to connect wallet: ${
-            err.message || "Please try again."
-          }`,
-          type: "error",
+      const recs: RecordMeta[] = [];
+      const start = Math.max(0, count - 3); // Get last 3 records
+      for (let i = start; i < count; i++) {
+        const record = await blockchainClient.getHealthRecord(patientAddress, i);
+        recs.push({
+          dataHash: record.dataHash,
+          timestamp: record.timestamp,
+          recordType: record.recordType,
         });
       }
-    };
+      setRecentRecords(recs.reverse());
+    } catch (e) {
+      console.error("Error loading records:", e);
+    } finally {
+      setLoadingRecords(false);
+    }
+  }, [patientAddress]);
 
-    initializeWallet();
-  }, []);
+  const loadConsentList = useCallback(async () => {
+    if (!patientAddress) return;
+    const granted: typeof MOCK_DOCTORS = [];
+    for (const doc of MOCK_DOCTORS) {
+      try {
+        const has = await blockchainClient.hasConsent(patientAddress, doc.address);
+        if (has) granted.push(doc);
+      } catch {
+        // ignore
+      }
+    }
+    setConsentList(granted);
+  }, [patientAddress]);
 
   // Fetch on-chain records and consent once ready
   useEffect(() => {
-    if (loggedIn && role === "Patient" && contract && patientAddress) {
+    if (loggedIn && role === "Patient" && patientAddress) {
       loadRecentRecords();
       loadConsentList();
     }
-  }, [loggedIn, role, contract, patientAddress]);
+  }, [loggedIn, role, patientAddress, loadRecentRecords, loadConsentList]);
 
   // Simulate real-time vital signs updates
   useEffect(() => {
@@ -217,63 +173,14 @@ export default function PatientDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const loadRecentRecords = async () => {
-    if (!contract || !ethers.isAddress(patientAddress!)) return;
-    setLoadingRecords(true);
-    try {
-      const countBigInt: bigint = await contract.getRecordCount(
-        patientAddress!
-      );
-      const count = Number(countBigInt);
-      setRecordCount(count);
-
-      const recs: RecordMeta[] = [];
-      const start = Math.max(0, count - 3); // Get last 3 records
-      for (let i = start; i < count; i++) {
-        const [dataHash, tsBigInt, recordType] = await contract.getHealthRecord(
-          patientAddress!,
-          i
-        );
-        recs.push({
-          dataHash: dataHash as string,
-          timestamp: Number(tsBigInt as bigint),
-          recordType: recordType as string,
-        });
-      }
-      setRecentRecords(recs.reverse());
-    } catch (e) {
-      console.error("Error loading records:", e);
-    } finally {
-      setLoadingRecords(false);
-    }
-  };
-
-  const loadConsentList = async () => {
-    if (!contract || !ethers.isAddress(patientAddress!)) return;
-    const granted: typeof MOCK_DOCTORS = [];
-    for (const doc of MOCK_DOCTORS) {
-      try {
-        const has: boolean = await contract.hasConsent(
-          patientAddress!,
-          doc.address
-        );
-        if (has) granted.push(doc);
-      } catch {
-        // ignore
-      }
-    }
-    setConsentList(granted);
-  };
-
   const handleRevoke = async (docAddr: string) => {
-    if (!contract) return;
+    if (!patientAddress) return;
     setStatus({
       message: "Revoking consent...",
       type: "loading",
     });
     try {
-      const tx = await contract.revokeConsent(docAddr);
-      await tx.wait();
+      await blockchainClient.revokeConsent(patientAddress, docAddr);
       setStatus({
         message: "Consent revoked successfully.",
         type: "success",
@@ -282,7 +189,7 @@ export default function PatientDashboard() {
     } catch (e: any) {
       console.error("Revoke error:", e);
       setStatus({
-        message: e.reason || "Error revoking consent.",
+        message: e.message || "Error revoking consent.",
         type: "error",
       });
     }
@@ -353,31 +260,7 @@ export default function PatientDashboard() {
     return { status: "normal", color: "text-green-600" };
   };
 
-  const getStatusIcon = () => {
-    switch (status.type) {
-      case "loading":
-        return <Loader2 className="h-4 w-4 animate-spin" />;
-      case "success":
-        return <CheckCircle className="h-4 w-4" />;
-      case "error":
-        return <AlertCircle className="h-4 w-4" />;
-      case "warning":
-        return <AlertCircle className="h-4 w-4" />;
-      default:
-        return null;
-    }
-  };
 
-  const getStatusVariant = () => {
-    switch (status.type) {
-      case "error":
-        return "destructive";
-      case "warning":
-        return "default";
-      default:
-        return "default";
-    }
-  };
 
   if (!loggedIn || role !== "Patient") {
     return (
@@ -607,9 +490,8 @@ export default function PatientDashboard() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`font-medium ${
-                        getVitalStatus("heartRate", mockVitals.heartRate).color
-                      }`}
+                      className={`font-medium ${getVitalStatus("heartRate", mockVitals.heartRate).color
+                        }`}
                     >
                       {mockVitals.heartRate} bpm
                     </span>
@@ -623,10 +505,9 @@ export default function PatientDashboard() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`font-medium ${
-                        getVitalStatus("temperature", mockVitals.temperature)
-                          .color
-                      }`}
+                      className={`font-medium ${getVitalStatus("temperature", mockVitals.temperature)
+                        .color
+                        }`}
                     >
                       {mockVitals.temperature.toFixed(1)} °C
                     </span>
@@ -640,12 +521,11 @@ export default function PatientDashboard() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`font-medium ${
-                        getVitalStatus(
-                          "bloodPressure",
-                          mockVitals.bloodPressure
-                        ).color
-                      }`}
+                      className={`font-medium ${getVitalStatus(
+                        "bloodPressure",
+                        mockVitals.bloodPressure
+                      ).color
+                        }`}
                     >
                       {mockVitals.bloodPressure}
                     </span>
@@ -659,12 +539,11 @@ export default function PatientDashboard() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`font-medium ${
-                        getVitalStatus(
-                          "oxygenSaturation",
-                          mockVitals.oxygenSaturation
-                        ).color
-                      }`}
+                      className={`font-medium ${getVitalStatus(
+                        "oxygenSaturation",
+                        mockVitals.oxygenSaturation
+                      ).color
+                        }`}
                     >
                       {mockVitals.oxygenSaturation}%
                     </span>
@@ -678,12 +557,11 @@ export default function PatientDashboard() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`font-medium ${
-                        getVitalStatus(
-                          "respiratoryRate",
-                          mockVitals.respiratoryRate
-                        ).color
-                      }`}
+                      className={`font-medium ${getVitalStatus(
+                        "respiratoryRate",
+                        mockVitals.respiratoryRate
+                      ).color
+                        }`}
                     >
                       {mockVitals.respiratoryRate} bpm
                     </span>
@@ -789,12 +667,13 @@ export default function PatientDashboard() {
         </div>
       </div>
 
-      {/* {status.message && (
-        <Alert variant={getStatusVariant()}>
-          {getStatusIcon()}
-          <AlertDescription>{status.message}</AlertDescription>
-        </Alert>
-      )} */}
+
+
+      {status.message && (
+        <Badge variant={status.type === "error" ? "destructive" : "secondary"}>
+          {status.message}
+        </Badge>
+      )}
     </div>
   );
 }

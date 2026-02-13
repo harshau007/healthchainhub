@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
@@ -36,7 +37,7 @@ export function DataProvider({ children }: DataProviderProps) {
   const { setData } = useDataStore();
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [previousData, setPreviousData] = useState<HospitalData | null>(null);
+  const previousDataRef = useRef<HospitalData | null>(null);
 
   useEffect(() => {
     const dataManager = new DataManager();
@@ -48,8 +49,8 @@ export function DataProvider({ children }: DataProviderProps) {
         setIsConnected(true);
 
         // Anomalies Check
-        if (previousData) {
-          const anomalies = detectAnomalies(previousData, newData);
+        if (previousDataRef.current) {
+          const anomalies = detectAnomalies(previousDataRef.current, newData);
 
           // Toast notifications for any detected anomalies
           anomalies.forEach((anomaly: Anomaly) => {
@@ -60,7 +61,7 @@ export function DataProvider({ children }: DataProviderProps) {
           });
         }
 
-        setPreviousData(newData);
+        previousDataRef.current = newData;
       },
       onConnected: () => {
         setIsConnected(true);
@@ -87,7 +88,7 @@ export function DataProvider({ children }: DataProviderProps) {
     return () => {
       cleanup();
     };
-  }, [previousData, setData]);
+  }, [setData]);
 
   const value = {
     isConnected,

@@ -1,0 +1,30 @@
+{
+  "users": {
+    "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc": {
+      "address": "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc",
+      "role": "Patient",
+      "isRegistered": true
+    },
+    "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266": {
+      "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "role": "Doctor",
+      "isRegistered": true
+    },
+    "0x70997970c51812dc3a010c7d01b50e0d17dc79c8": {
+      "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "role": "Admin",
+      "isRegistered": true
+    }
+  },
+  "records": {
+    "0x257f01d8a0d459def4cb0fa69a2cd7241d9568bc": [
+      {
+        "dataHash": "QmTestHash123",
+        "timestamp": 1700000000,
+        "recordType": "Lab Results"
+      }
+    ]
+  },
+  "consent": {},
+  "tips": []
+}

@@ -3,12 +3,21 @@ import { HeaderWrapper } from "@/components/header-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { DataProvider } from "@/providers/data-provider";
+import { SimulationProvider } from "@/components/blockchain/simulation-provider";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Manrope, JetBrains_Mono } from "next/font/google";
 import type React from "react";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 const APP_NAME = "HealthChain";
 const APP_DEFAULT_TITLE = "Real-time HealthCare Management System";
@@ -61,7 +70,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${manrope.variable} ${mono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -69,14 +78,16 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <DataProvider>
-            <AuthProvider>
-              <div className="flex min-h-screen flex-col">
-                <HeaderWrapper />
-                <AuthGuard>
-                  <div className="flex-1">{children}</div>
-                </AuthGuard>
-              </div>
-            </AuthProvider>
+            <SimulationProvider>
+              <AuthProvider>
+                <div className="flex min-h-screen flex-col">
+                  <HeaderWrapper />
+                  <AuthGuard>
+                    <div className="flex-1">{children}</div>
+                  </AuthGuard>
+                </div>
+              </AuthProvider>
+            </SimulationProvider>
           </DataProvider>
         </ThemeProvider>
       </body>

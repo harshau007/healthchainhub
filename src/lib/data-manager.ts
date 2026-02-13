@@ -28,7 +28,7 @@ export class DataManager {
     } catch (error) {
       console.error("Error setting up EventSource:", error);
       callbacks.onError?.(new Error("Failed to set up data connection"));
-      return () => {};
+      return () => { };
     }
   }
 
@@ -36,11 +36,7 @@ export class DataManager {
     this.closeConnection(); // Close any existing connection
 
     try {
-      this.eventSource = new EventSource(
-        process.env.NODE_ENV == "development"
-          ? "http://localhost:4000/events"
-          : "https://healthchainhub.onrender.com/events"
-      );
+      this.eventSource = new EventSource("/api/events");
 
       this.eventSource.onopen = () => {
         this.reconnectAttempts = 0;

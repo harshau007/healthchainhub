@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/providers/auth-provider";
-import { ethers } from "ethers";
 import {
   AlertCircle,
   Calendar,
@@ -30,8 +29,8 @@ import {
   Shield,
   User,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import HealthcareAuthPlusAbi from "../../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
+import { useEffect, useState, useCallback } from "react";
+import { blockchainClient } from "@/lib/blockchain/client";
 
 interface RecordMeta {
   dataHash: string;
@@ -56,105 +55,8 @@ export default function RecordsPage() {
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-
-  // Initialize Ethereum provider, signer, contract
-  useEffect(() => {
-    if (typeof window === "undefined" || !(window as any).ethereum) {
-      setStatus({
-        message: "MetaMask not detected. Please install MetaMask to continue.",
-        type: "error",
-      });
-      return;
-    }
-
-    const initializeWallet = async () => {
-      try {
-        const _provider = new ethers.BrowserProvider((window as any).ethereum);
-        setProvider(_provider);
-
-        await _provider.send("eth_requestAccounts", []);
-        const _signer = await _provider.getSigner();
-        setSigner(_signer);
-
-        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
-
-        // Validate contract address format
-        if (!contractAddress) {
-          setStatus({
-            message:
-              "Contract address not configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (
-          !contractAddress.startsWith("0x") ||
-          contractAddress.length !== 42
-        ) {
-          setStatus({
-            message:
-              "Invalid contract address format. Must be a valid Ethereum address starting with 0x.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (!ethers.isAddress(contractAddress)) {
-          setStatus({
-            message:
-              "Invalid contract address. Please check the NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        const _contract = new ethers.Contract(
-          contractAddress,
-          HealthcareAuthPlusAbi.abi,
-          _signer
-        );
-        setContract(_contract);
-
-        setStatus({
-          message: "Wallet connected successfully.",
-          type: "success",
-        });
-      } catch (err: any) {
-        console.error("Wallet connection error:", err);
-        setStatus({
-          message: `Unable to connect wallet: ${
-            err.message || "Please try again."
-          }`,
-          type: "error",
-        });
-      }
-    };
-
-    initializeWallet();
-  }, []);
-
-  // If Patient, auto-set patientAddressInput and fetch records
-  useEffect(() => {
-    if (loggedIn && role === "Patient" && userAddress && contract) {
-      setPatientAddressInput(userAddress);
-      fetchRecords(userAddress);
-    }
-  }, [loggedIn, role, userAddress, contract]);
-
-  const fetchRecords = async (addressToFetch: string) => {
-    if (!contract) {
-      setStatus({
-        message: "Contract not initialized.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (!ethers.isAddress(addressToFetch)) {
+  const fetchRecords = useCallback(async (addressToFetch: string) => {
+    if (!addressToFetch.startsWith("0x")) {
       setStatus({
         message: "Invalid patient address format.",
         type: "error",
@@ -174,10 +76,7 @@ export default function RecordsPage() {
           type: "loading",
         });
 
-        const hasConsent: boolean = await contract.hasConsent(
-          addressToFetch,
-          userAddress
-        );
+        const hasConsent = await blockchainClient.hasConsent(addressToFetch, userAddress);
         if (!hasConsent) {
           setStatus({
             message:
@@ -196,8 +95,7 @@ export default function RecordsPage() {
         type: "loading",
       });
 
-      const countBigInt: bigint = await contract.getRecordCount(addressToFetch);
-      const count = Number(countBigInt);
+      const count = await blockchainClient.getRecordCount(addressToFetch);
       setRecordCount(count);
 
       if (count === 0) {
@@ -211,36 +109,34 @@ export default function RecordsPage() {
       }
 
       setStatus({
-        message: `Found ${count} record${
-          count !== 1 ? "s" : ""
-        }. Fetching details...`,
+        message: `Found ${count} record${count !== 1 ? "s" : ""
+          }. Fetching details...`,
         type: "loading",
       });
 
       const recs: RecordMeta[] = [];
-      for (let i = 0; i < count; i++) {
-        const [dataHash, tsBigInt, recordType] = await contract.getHealthRecord(
-          addressToFetch,
-          i
-        );
-        recs.push({
-          dataHash: dataHash as string,
-          timestamp: Number(tsBigInt as bigint),
-          recordType: recordType as string,
+      const allRecords = await blockchainClient.getAllRecords(addressToFetch);
+      // Backend returns them in simulation format, which matches RecordMeta mostly
+      if (allRecords && Array.isArray(allRecords)) {
+        allRecords.forEach(r => {
+          recs.push({
+            dataHash: r.dataHash,
+            timestamp: r.timestamp,
+            recordType: r.recordType
+          });
         });
       }
 
       setRecords(recs.reverse()); // Show newest first
       setStatus({
-        message: `Successfully loaded ${count} health record${
-          count !== 1 ? "s" : ""
-        }.`,
+        message: `Successfully loaded ${count} health record${count !== 1 ? "s" : ""
+          }.`,
         type: "success",
       });
     } catch (error: any) {
       console.error("Error fetching records:", error);
       setStatus({
-        message: error.reason || "Failed to fetch records. Please try again.",
+        message: error.message || "Failed to fetch records. Please try again.",
         type: "error",
       });
       setRecords([]);
@@ -248,19 +144,20 @@ export default function RecordsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [role, userAddress]);
+
+  // If Patient, auto-set patientAddressInput and fetch records
+  useEffect(() => {
+    if (loggedIn && role === "Patient" && userAddress) {
+      setPatientAddressInput(userAddress);
+      fetchRecords(userAddress);
+    }
+  }, [loggedIn, role, userAddress, fetchRecords]);
 
   const handleFetchClick = () => {
     if (!patientAddressInput) {
       setStatus({
         message: "Please enter a patient address.",
-        type: "error",
-      });
-      return;
-    }
-    if (!ethers.isAddress(patientAddressInput)) {
-      setStatus({
-        message: "Invalid address format.",
         type: "error",
       });
       return;

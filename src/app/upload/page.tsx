@@ -21,18 +21,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/providers/auth-provider";
-import { ethers } from "ethers";
+import { blockchainClient } from "@/lib/blockchain/client";
+import { useSimulation } from "@/components/blockchain/simulation-provider";
 import {
   AlertCircle,
   CheckCircle,
-  FileText,
   Loader2,
   Shield,
   Upload,
   User,
 } from "lucide-react";
-import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
-import HealthcareAuthPlusAbi from "../../../blockchain/artifacts/contracts/HealthcareAuth.sol/HealthcareAuth.json";
+import { type FormEvent, useEffect, useState } from "react";
 import FileUploadComponent from "@/components/file-upload";
 
 interface UploadStatus {
@@ -43,6 +42,7 @@ interface UploadStatus {
 
 export default function UploadPage() {
   const { address: userAddress, role, loggedIn } = useAuth();
+  const { sendTransaction } = useSimulation();
 
   const [file, setFile] = useState<File | null>(null);
   const [recordType, setRecordType] = useState<string>("LabReport");
@@ -52,87 +52,6 @@ export default function UploadPage() {
     type: "idle",
   });
   const [isUploading, setIsUploading] = useState<boolean>(false);
-
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-
-  // Initialize provider, signer, contract
-  useEffect(() => {
-    if (typeof window === "undefined" || !(window as any).ethereum) {
-      setUploadStatus({
-        message: "MetaMask not detected. Please install MetaMask to continue.",
-        type: "error",
-      });
-      return;
-    }
-
-    const initializeWallet = async () => {
-      try {
-        const _provider = new ethers.BrowserProvider((window as any).ethereum);
-        setProvider(_provider);
-
-        await _provider.send("eth_requestAccounts", []);
-        const _signer = await _provider.getSigner();
-        setSigner(_signer);
-
-        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
-
-        // Validate contract address format
-        if (!contractAddress) {
-          setUploadStatus({
-            message:
-              "Contract address not configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (
-          !contractAddress.startsWith("0x") ||
-          contractAddress.length !== 42
-        ) {
-          setUploadStatus({
-            message:
-              "Invalid contract address format. Must be a valid Ethereum address starting with 0x.",
-            type: "error",
-          });
-          return;
-        }
-
-        if (!ethers.isAddress(contractAddress)) {
-          setUploadStatus({
-            message:
-              "Invalid contract address. Please check the NEXT_PUBLIC_CONTRACT_ADDRESS environment variable.",
-            type: "error",
-          });
-          return;
-        }
-
-        const _contract = new ethers.Contract(
-          contractAddress,
-          HealthcareAuthPlusAbi.abi,
-          _signer
-        );
-        setContract(_contract);
-
-        setUploadStatus({
-          message: "Wallet connected successfully.",
-          type: "success",
-        });
-      } catch (err: any) {
-        console.error("Wallet connection error:", err);
-        setUploadStatus({
-          message: `Unable to connect wallet: ${
-            err.message || "Please try again."
-          }`,
-          type: "error",
-        });
-      }
-    };
-
-    initializeWallet();
-  }, []);
 
   // If Patient, auto-fill their own address
   useEffect(() => {
@@ -152,9 +71,9 @@ export default function UploadPage() {
       return;
     }
 
-    if (!contract || !signer) {
+    if (!userAddress) {
       setUploadStatus({
-        message: "Wallet or contract not ready. Please refresh and try again.",
+        message: "User address not found. Please relogin.",
         type: "error",
       });
       return;
@@ -163,7 +82,7 @@ export default function UploadPage() {
     const patientAddress =
       role === "Doctor" ? patientAddressInput.trim() : userAddress || "";
 
-    if (!ethers.isAddress(patientAddress)) {
+    if (!patientAddress.startsWith("0x")) {
       setUploadStatus({
         message: "Invalid patient address format.",
         type: "error",
@@ -190,7 +109,7 @@ export default function UploadPage() {
           progress: 20,
         });
 
-        const hasConsent: boolean = await contract.hasConsent(
+        const hasConsent = await blockchainClient.hasConsent(
           patientAddress,
           userAddress
         );
@@ -205,7 +124,7 @@ export default function UploadPage() {
         }
       }
 
-      // Upload to Pinata
+      // Upload to IPFS via Next.js API
       setUploadStatus({
         message: "Uploading file to IPFS network...",
         type: "loading",
@@ -240,29 +159,26 @@ export default function UploadPage() {
         progress: 80,
       });
 
-      // Register on blockchain
-      const tx = await contract.addHealthRecord(
-        patientAddress,
-        dataHash,
-        recordType,
+      // Register on simulated blockchain
+      await sendTransaction(
+        () => blockchainClient.addHealthRecord(
+          userAddress,
+          patientAddress,
+          dataHash,
+          recordType
+        ),
         {
-          value: ethers.parseEther("0.001"),
+          amount: "0.001",
+          functionName: "ADD HEALTH RECORD",
+          to: "Healthcare Records"
         }
       );
 
-      setUploadStatus({
-        message: `Transaction submitted: ${tx.hash}. Waiting for confirmation...`,
-        type: "loading",
-        progress: 90,
-      });
-
-      await tx.wait();
-
-      // Store CID locally for future reference
+      // Store CID locally for future reference (optional key map)
       localStorage.setItem(`cid:${dataHash}`, ipfsCid);
 
       setUploadStatus({
-        message: `Record successfully uploaded and registered! Transaction: ${tx.hash}`,
+        message: `Record successfully uploaded and registered!`,
         type: "success",
         progress: 100,
       });
@@ -276,7 +192,7 @@ export default function UploadPage() {
     } catch (error: any) {
       console.error("Upload error:", error);
       setUploadStatus({
-        message: error.reason || "Failed to upload record. Please try again.",
+        message: error.message || "Failed to upload record. Please try again.",
         type: "error",
       });
     } finally {
